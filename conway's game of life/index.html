@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GAME OF LIFE</title>
+    <style>
+        html, body, #screen {
+            height: 100%;
+            width: 100%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            image-rendering: optimizeSpeed; /*              Older versions of FF          */
+            image-rendering: -moz-crisp-edges; /*           FF 6.0+                       */
+            image-rendering: -webkit-optimize-contrast; /*  Safari                        */
+            image-rendering: -o-crisp-edges; /*             OS X & Windows Opera (12.02+) */
+            image-rendering: pixelated; /*                  Awesome future-browsers       */
+            -ms-interpolation-mode: nearest-neighbor; /*    IE                            */
+        }
+    </style>
+</head>
+<body>
+<div id="screen"></div>
+<script type="module">
+	import Application from "./index.js";
+
+	window.app = new Application({
+		fieldWidth: 100,
+		fieldHeight: 100,
+
+		screen: document.getElementById("screen"),
+		scale: 32,
+	});
+</script>
+</body>
+</html>
