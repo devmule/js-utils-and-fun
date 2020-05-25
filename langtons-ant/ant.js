@@ -65,11 +65,9 @@ export default class Ant {
 	}
 	
 	getCell(x, y) {
-		//console.log(x, y);
 		let key = String(Math.floor(x / tileSize)) + ":" + String(Math.floor(y / tileSize));
-		//console.log(key);
-		if (!this.tiles[key]) this.tiles[key] = this._generateTile();
-		//console.log(this.tiles[key]);
+		//if (!this.tiles[key]) this.tiles[key] = this._generateTile();
+		if (!this.tiles[key]) return 0;
 		return this.tiles[key][this._getIndex(y)][this._getIndex(x)];
 	}
 	
