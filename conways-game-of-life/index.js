@@ -2,7 +2,11 @@ import GameOfLife from "./game-of-life.js";
 import Interface from "./interface.js";
 
 export default class Application {
-	constructor(settings = {}) {
+	constructor(settings) {
+		// disable context menu
+		document.oncontextmenu = document.body.oncontextmenu = function () {
+			return false;
+		};
 		
 		// game of life logic
 		this.game = new GameOfLife(settings.fieldWidth || 100, settings.fieldHeight || 100);
@@ -18,21 +22,12 @@ export default class Application {
 		// events
 		window.addEventListener("resize", this.resize.bind(this));
 		window.addEventListener('wheel', this.wheel.bind(this));
-		window.addEventListener('wheel', this.wheel.bind(this));
 		this.interface.canvas.addEventListener("click", this.click.bind(this));
-		
-		this.play = null;
-		this.interface.btnPausePlay.onclick = () => {
-			if (!this.play) {
-				this.play = setInterval(() => {
-					this.game.step();
-					this.draw();
-				}, 1);
-			} else {
-				clearInterval(this.play);
-				this.play = null;
-			}
-		};
+		this.interface.btnPausePlay.addEventListener("click", this.onPausePlay.bind(this));
+		this.interface.btnNextFrame.addEventListener("click", this.onNextFrame.bind(this));
+		this.interface.btnSave.addEventListener("click", this.onSave.bind(this));
+		this.interface.btnLoad.addEventListener("click", this.onLoad.bind(this));
+		this.player = null;
 		
 		this.resize();
 	}
@@ -58,6 +53,23 @@ export default class Application {
 		}
 	}
 	
+	onPausePlay() {
+		if (!this.player) {
+			this.player = setInterval(() => {
+				this.game.step();
+				this.draw();
+			}, 1);
+		} else {
+			clearInterval(this.player);
+			this.player = null;
+		}
+	}
+	
+	onNextFrame() {
+		this.game.step();
+		this.draw();
+	}
+	
 	// events
 	resize(e) {
 		this.ctx.canvas.width = this.interface.canvas.getBoundingClientRect().width / this.scale;
@@ -66,14 +78,26 @@ export default class Application {
 	}
 	
 	wheel(e) {
-		e.deltaY < 0 ? this.scale *= 1.5 : this.scale /= 1.5;
-		this.resize();
+		if (e.path[0] === this.interface.canvas) {
+			e.deltaY < 0 ? this.scale *= 1.5 : this.scale /= 1.5;
+			this.resize();
+		}
 	}
 	
 	click(e) {
 		let x = Math.floor((e.x - this.interface.canvas.getBoundingClientRect().left - this.offsetX) / this.scale);
 		let y = Math.floor((e.y - this.interface.canvas.getBoundingClientRect().top - this.offsetY) / this.scale);
 		this.game.setCell(x, y, !this.game.cell(x, y));
+		this.draw();
+	}
+	
+	onSave() {
+		localStorage.setItem("save", this.game.raw);
+	}
+	
+	onLoad() {
+		let save = localStorage.getItem("save");
+		if (save) this.game.raw = save;
 		this.draw();
 	}
 }
