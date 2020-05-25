@@ -27,6 +27,7 @@ export default class Application {
 		this.interface.btnNextFrame.addEventListener("click", this.onNextFrame.bind(this));
 		this.interface.btnSave.addEventListener("click", this.onSave.bind(this));
 		this.interface.btnLoad.addEventListener("click", this.onLoad.bind(this));
+		this.interface.btnLoad.disabled = !localStorage.getItem("save");
 		this.player = null;
 		
 		this.resize();
@@ -93,11 +94,14 @@ export default class Application {
 	
 	onSave() {
 		localStorage.setItem("save", this.game.raw);
+		this.interface.btnLoad.disabled = false;
 	}
 	
 	onLoad() {
 		let save = localStorage.getItem("save");
-		if (save) this.game.raw = save;
-		this.draw();
+		if (save) {
+			this.game.raw = save;
+			this.draw();
+		}
 	}
 }
