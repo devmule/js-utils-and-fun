@@ -1,44 +1,43 @@
-class Matrix {
+class Matrix extends Array {
 	
 	/**
-	 * @param {number|Array.<Array.<number>>} val
-	 * @param {number} [valY=0]
+	 * @param {number|Array.<Array.<number>>} w
+	 * @param {number} [h=0]
 	 * @return Matrix
 	 * **/
-	constructor(val, valY = 0) {
-		/**
-		 * @private {Array.<Array.<number>>}
-		 */
-		this._elements = [];
+	constructor(w, h = 0) {
+		super();
 		
-		if (val instanceof Array) { // if array given, copy values from array
-			this.fromArray(val);
-		} else {// generate Matrix with zeroes
-			for (let y = 0; y < valY; y++) {
-				this._elements.push([]);
-				for (let x = 0; x < val; x++)
-					this._elements[y].push(0);
+		if (w instanceof Array) {// if array given, copy values from array
+			this.fromArray(w);
+		} else if (Number.isInteger(w) && w > 0 && h > 0) {// if two integers given generate Matrix with zeroes
+			for (let x = 0; x < w; x++) {
+				this.push([]);
+				for (let y = 0; y < h; y++)
+					this[x].push(0);
 			}
-			
-			this._h = this._elements.length;
-			this._w = this._elements[0] ? this._elements[0].length : 0;
-		}
+		} else
+			throw new TypeError(`Constructor must receive two-dimensional array of numbers or two integers > 0`);
 		
 		return this;
 	}
+	
+	get width() {
+		return this.length;
+	}
+	
+	get height() {
+		return this.length ? this[0].length : 0;
+	}
+	
 	
 	/** Read elements from given array. Return this matrix.
 	 * @param {Array.<Array.<number>>} array
 	 * @return Matrix
 	 * **/
 	fromArray(array) {
-		this._elements = [];
-		for (let y = 0; y < array.length; y++)
-			this._elements[y] = array[y].map((x) => x);
-		
-		this._h = this._elements.length;
-		this._w = this._elements[0] ? this._elements[0].length : 0;
-		
+		while (this.length) this.pop();
+		for (let i = 0; i < array.length; i++) this[i] = array[i].map(val => val);
 		return this;
 	}
 	
@@ -47,16 +46,16 @@ class Matrix {
 	 * @return Matrix
 	 * **/
 	forEach(func) {
-		for (let y = 0; y < this._h; y++)
-			for (let x = 0; x < this._w; x++)
-				this._elements[y][x] = func(this._elements[y][x], x, y);
+		for (let x = 0; x < this.width; x++)
+			for (let y = 0; y < this.height; y++)
+				this[x][y] = func(this[x][y], x, y);
 	}
 	
 	/** Returns new Matrix with same values, or clone values to given Matrix instance.
 	 * @return Matrix
 	 * **/
 	clone() {
-		return new Matrix(this._elements);
+		return new Matrix(this);
 	}
 	
 	// simple operations
@@ -65,11 +64,11 @@ class Matrix {
 	 * @return Matrix
 	 * **/
 	add(m) {
-		for (let y = 0; y < this._elements.length; y++) {
-			for (let x = 0; x < this._elements[y].length; x++) {
-				this._elements[y][x] += m._elements[y][x];
-			}
-		}
+		if (this.width !== m.width || this.height !== m.height)
+			throw new Error(`Different dimensions of matrices. Given ${this.width}×${this.height} and ${m.width}×${m.height}. Must be the same!`);
+		for (let x = 0; x < this.width; x++)
+			for (let y = 0; y < this.height; y++)
+				this[x][y] += m[x][y];
 		return this;
 	}
 	
@@ -78,11 +77,11 @@ class Matrix {
 	 * @return Matrix
 	 * **/
 	subtract(m) {
-		for (let y = 0; y < this._elements.length; y++) {
-			for (let x = 0; x < this._elements[y].length; x++) {
-				this._elements[y][x] -= m._elements[y][x];
-			}
-		}
+		if (this.width !== m.width || this.height !== m.height)
+			throw new Error(`Different dimensions of matrices. Given ${this.width}×${this.height} and ${m.width}×${m.height}. Must be the same!`);
+		for (let x = 0; x < this.width; x++)
+			for (let y = 0; y < this.height; y++)
+				this[x][y] -= m[x][y];
 		return this;
 	}
 	
@@ -97,6 +96,16 @@ class Matrix {
 		return this;
 	}
 	
+	// Matrix transformations
+	transpose() {
+		let m = new Matrix(this.height, this.width);
+		for (let x = 0; x < this.width; x++)
+			for (let y = 0; y < this.height; y++)
+				m[y][x] = this[x][y];
+		this.fromArray(m);
+		return this;
+	}
+	
 	//
 	//
 	// some tasty methods
@@ -107,7 +116,7 @@ class Matrix {
 	 * @return String
 	 * **/
 	toString() {
-		return JSON.stringify(this._elements).split("],[").join("],\n[")
+		return JSON.stringify(this).split("],[").join("],\n[")
 	}
 	
 	/** Set every element of this matrix 1 if x == y, 0 otherwise. Return this matrix.
@@ -131,6 +140,3 @@ class Matrix {
 		return this;
 	}
 }
-
-let m = new Matrix(10, 10).diagonalOnes();
-console.log(m.toString());
