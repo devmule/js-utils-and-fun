@@ -1,5 +1,6 @@
 /** Class representing a vector. */
-class Vector {
+class Vector extends Array {
+	
 	/** Add one vector values to another vector values. Can work with different sizes vectors. Return new Vector.
 	 * @param {Vector} v1
 	 * @param {Vector} v2
@@ -64,8 +65,8 @@ class Vector {
 		if (!v.length)
 			throw new Error(`Need at least 1 vector as parameter`);
 		
-		let dim = v[0].dimensions;
-		for (let i = 1; i < v.length; i++) if (v[i].dimensions !== dim)
+		let dim = v[0].length;
+		for (let i = 1; i < v.length; i++) if (v[i].length !== dim)
 			throw new Error(`Vectors dimensions are different! Must be the same!`);
 		
 		if (dim < 2)
@@ -98,23 +99,22 @@ class Vector {
 			for (let y = 0; y < v.length; y++) {
 				matrix[y] = [];
 				for (let x = i + 1; x < i + dim; x++)
-					matrix[y].push(v[y]._elements[x % dim]);
+					matrix[y].push(v[y][x % dim]);
 			}
-			e._elements[i] = det(matrix) * (i % 2 ? -1 : 1);
+			e[i] = det(matrix) * (i % 2 ? -1 : 1);
 		}
 		
 		return e;
 	}
 	
 	/**
-	 * @param {number} elements Elements of vector, amount of elements is vectors dimension.
+	 * @param {number|Array} elements
 	 * @return Vector
 	 * **/
 	constructor(...elements) {
-		/**
-		 * @private {Array.<number>}
-		 */
-		this._elements = elements;
+		super();
+		if (elements.length && elements[0] instanceof Array) this.fromArray(elements[0]);
+		else this.fromArray(elements);
 		return this;
 	}
 	
@@ -123,29 +123,31 @@ class Vector {
 	 * @return Vector
 	 * **/
 	fromArray(array) {
-		this._elements = array.map((x) => x);
+		while (this.length) this.pop();
+		for (let i = 0; i < array.length; i++) this[i] = array[i];
 		return this;
-	}
-	
-	/** Returns vector dimensions amount.
-	 * @return number
-	 * **/
-	get dimensions() {
-		return this._elements.length;
 	}
 	
 	/** Returns scalar value of vector magnitude.
 	 * @return number
 	 * **/
-	get length() {
-		return Math.sqrt(this._elements.reduce((p, c, i, arr) => p + c * c));
+	get magnitude() {
+		return Math.sqrt(this.reduce((p, c, i, arr) => p + c * c));
+	}
+	
+	/** Set magnitude to given value.
+	 * @param {number} magnitude
+	 * **/
+	set magnitude(magnitude) {
+		let c = magnitude / this.magnitude;
+		for (let i = 0; i < this.length; i++) this[i] *= c;
 	}
 	
 	/** Returns new Vector with same values and dimensions.
 	 * @return Vector
 	 * **/
 	clone() {
-		return new Vector().fromArray(this._elements);
+		return new Vector().fromArray(this);
 	}
 	
 	// simple operations
@@ -154,8 +156,8 @@ class Vector {
 	 * @return Vector
 	 * **/
 	add(v) {
-		for (let i = 0; i < Math.min(this.dimensions, v.dimensions); i++)
-			this._elements[i] += v._elements[i];
+		for (let i = 0; i < Math.min(this.length, v.length); i++)
+			this[i] += v[i];
 		return this;
 	}
 	
@@ -164,8 +166,8 @@ class Vector {
 	 * @return Vector
 	 * **/
 	subtract(v) {
-		for (let i = 0; i < Math.min(this.dimensions, v.dimensions); i++)
-			this._elements[i] -= v._elements[i];
+		for (let i = 0; i < Math.min(this.length, v.length); i++)
+			this[i] -= v[i];
 		return this;
 	}
 	
@@ -175,7 +177,7 @@ class Vector {
 	 * @return Vector
 	 * **/
 	multiply(val) {
-		for (let i = 0; i < this.dimensions; i++) this._elements[i] *= val;
+		for (let i = 0; i < this.length; i++) this[i] *= val;
 		return this;
 	}
 	
@@ -186,8 +188,8 @@ class Vector {
 	 * **/
 	dot(v) {
 		let val = 0;
-		for (let i = 0; i < Math.min(this.dimensions, v.dimensions); i++)
-			val += this._elements[i] * v._elements[i];
+		for (let i = 0; i < Math.min(this.length, v.length); i++)
+			val += this[i] * v[i];
 		return val;
 	}
 	
@@ -197,10 +199,10 @@ class Vector {
 	 * @return number
 	 * **/
 	cos(v) {
-		return this.dot(v) / (this.length * v.length);
+		return this.dot(v) / (this.magnitude * v.magnitude);
 	}
 	
-	/** Returns angle between  this vector and given vector in radians.
+	/** Returns angle between this vector and given vector in radians.
 	 * @param {Vector} v
 	 * @return number
 	 * **/
