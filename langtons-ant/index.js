@@ -25,6 +25,12 @@ export default class Application {
 				this.play = null;
 			}
 		};
+		
+		
+		// hot fixes
+		this.ant.x = Math.round(this.ctx.canvas.width / 2);
+		this.ant.y = Math.round(this.ctx.canvas.height / 2);
+		this.pausePlay();
 	}
 	
 	resize() {
