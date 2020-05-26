@@ -8,24 +8,30 @@ class Matrix extends Array {
 	constructor(w, h = 0) {
 		super();
 		
-		if (w instanceof Array) {// if array given, copy values from array
+		if (w instanceof Array) {  // if array given, copy values from array
 			this.fromArray(w);
-		} else if (Number.isInteger(w) && w > 0 && h > 0) {// if two integers given generate Matrix with zeroes
+			
+		} else { // or create zero matrix with given dimensions
 			for (let x = 0; x < w; x++) {
 				this.push([]);
 				for (let y = 0; y < h; y++)
 					this[x].push(0);
 			}
-		} else
-			throw new TypeError(`Constructor must receive two-dimensional array of numbers or two integers > 0`);
+		}
 		
 		return this;
 	}
 	
+	/** Returns number of columns of matrix;
+	 * @return number
+	 * **/
 	get width() {
 		return this.length;
 	}
 	
+	/** Returns number of rows of matrix;
+	 * @return number
+	 * **/
 	get height() {
 		return this.length ? this[0].length : 0;
 	}
@@ -97,6 +103,9 @@ class Matrix extends Array {
 	}
 	
 	// Matrix transformations
+	/** Transpose matrix. Swap X and Y dimensions.
+	 * @return Matrix
+	 * **/
 	transpose() {
 		let m = new Matrix(this.height, this.width);
 		for (let x = 0; x < this.width; x++)
@@ -130,7 +139,7 @@ class Matrix extends Array {
 	}
 	
 	
-	/** Set add random value from min to max to every element. Return this matrix.
+	/** Add random value from min to max to every element. Return this matrix.
 	 * @return Matrix
 	 * **/
 	randomize(min = 0, max = 1) {
