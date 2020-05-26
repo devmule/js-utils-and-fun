@@ -141,14 +141,11 @@ class Vector {
 		return Math.sqrt(this._elements.reduce((p, c, i, arr) => p + c * c));
 	}
 	
-	/** Returns new Vector with same values and dimensions, or clone values and dimensions to given Vector instance.
-	 * @param {Vector} [v=null]
+	/** Returns new Vector with same values and dimensions.
 	 * @return Vector
 	 * **/
-	clone(v = null) {
-		if (!v) v = new Vector();
-		v._elements = this._elements.map((x) => x);
-		return v;
+	clone() {
+		return new Vector().fromArray(this._elements);
 	}
 	
 	// simple operations
