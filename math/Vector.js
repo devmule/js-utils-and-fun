@@ -148,7 +148,7 @@ class Vector extends Array {
 	 * @return Vector
 	 * **/
 	clone() {
-		return new Vector().fromArray(this);
+		return new Vector(this);
 	}
 	
 	// simple operations
