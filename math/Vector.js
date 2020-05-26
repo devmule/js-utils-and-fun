@@ -37,25 +37,8 @@ class Vector extends Array {
 		return v1.dot(v2);
 	}
 	
-	/** Return cos of angle between given vectors.
-	 * @param {Vector} v1
-	 * @param {Vector} v2
-	 * @return Number
-	 * **/
-	static cos(v1, v2) {
-		return v1.cos(v2);
-	}
-	
-	/** Return angle between given vectors.
-	 * @param {Vector} v1
-	 * @param {Vector} v2
-	 * @return number
-	 * **/
-	static angle(v1, v2) {
-		return v1.angle(v2);
-	}
-	
-	/** Cross product of vectors. Return vector as normal of shape (normal of line in 2D, normal of plane in 3D, normal of volume in 4D etc.).
+	/** Cross product of vectors.
+	 * Return vector as normal of shape (normal of line in 2D, normal of plane in 3D, normal of volume in 4D etc.).
 	 * @param {Vector} v
 	 * @return Vector
 	 * **/
@@ -105,6 +88,24 @@ class Vector extends Array {
 		}
 		
 		return e;
+	}
+	
+	/** Return cos of angle between given vectors.
+	 * @param {Vector} v1
+	 * @param {Vector} v2
+	 * @return Number
+	 * **/
+	static cos(v1, v2) {
+		return v1.cos(v2);
+	}
+	
+	/** Return angle between given vectors.
+	 * @param {Vector} v1
+	 * @param {Vector} v2
+	 * @return number
+	 * **/
+	static angle(v1, v2) {
+		return v1.angle(v2);
 	}
 	
 	/**
@@ -191,6 +192,17 @@ class Vector extends Array {
 		for (let i = 0; i < Math.min(this.length, v.length); i++)
 			val += this[i] * v[i];
 		return val;
+	}
+	
+	/** Cross product of this vector and given vectors.
+	 * !!!!! This vector will have new values !!!!!
+	 * Return vector as normal of shape (normal of line in 2D, normal of plane in 3D, normal of volume in 4D etc.).
+	 * @param {Vector} v
+	 * @return Vector
+	 * **/
+	cross(...v) {
+		this.fromArray(Vector.cross(this, ...v));
+		return this;
 	}
 	
 	// trigonometry
