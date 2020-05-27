@@ -90,6 +90,7 @@ class Vector extends Array {
 		return e;
 	}
 	
+	// trigonometry
 	/** Return cos of angle between given vectors.
 	 * @param {Vector} v1
 	 * @param {Vector} v2
@@ -195,14 +196,12 @@ class Vector extends Array {
 	}
 	
 	/** Cross product of this vector and given vectors.
-	 * !!!!! This vector will have new values !!!!!
-	 * Return vector as normal of shape (normal of line in 2D, normal of plane in 3D, normal of volume in 4D etc.).
+	 * Return new vector as normal of shape (normal of line in 2D, normal of plane in 3D, normal of volume in 4D etc.).
 	 * @param {Vector} v
 	 * @return Vector
 	 * **/
 	cross(...v) {
-		this.fromArray(Vector.cross(this, ...v));
-		return this;
+		return Vector.cross(this, ...v);
 	}
 	
 	// trigonometry
