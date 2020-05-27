@@ -1,4 +1,41 @@
+/** Class representing a matrix. */
 class Matrix extends Array {
+	
+	/** Return new matrix. Elements of new matrix are sum of elements of given matrices in same position.
+	 * @param {Matrix} m1
+	 * @param {Matrix} m2
+	 * @return Matrix
+	 * **/
+	static add(m1, m2) {
+		return m1.clone().add(m2);
+	}
+	
+	/** Return new matrix. Elements of new matrix are difference between elements of given matrices in same position.
+	 * @param {Matrix} m1
+	 * @param {Matrix} m2
+	 * @return Matrix
+	 * **/
+	static subtract(m1, m2) {
+		return m1.clone().subtract(m2);
+	}
+	
+	/** Return new matrix. Elements of new matrix are equal to elements of given matrices multiplied by given value.
+	 * @param {Matrix} m
+	 * @param {number} val
+	 * @return Matrix
+	 * **/
+	static multiply(m, val) {
+		return m.clone().multiply(val);
+	}
+	
+	/** Multiply given matrices. Return new matrix as multiplication product.
+	 * @param {Matrix} m1
+	 * @param {Matrix} m2
+	 * @return Matrix
+	 * **/
+	static dot(m1, m2) {
+		return m1.dot(m2);
+	}
 	
 	/**
 	 * @param {number|Array.<Array.<number>>} w
@@ -42,8 +79,12 @@ class Matrix extends Array {
 	 * @return Matrix
 	 * **/
 	fromArray(array) {
+		if (!array.length || !array[0].length)
+			throw new Error(`Array must be two-dimensional. Must have at least 1 row and 1 col!`);
+		
 		while (this.length) this.pop();
 		for (let i = 0; i < array.length; i++) this[i] = array[i].map(val => val);
+		
 		return this;
 	}
 	
@@ -55,6 +96,8 @@ class Matrix extends Array {
 		for (let x = 0; x < this.width; x++)
 			for (let y = 0; y < this.height; y++)
 				this[x][y] = func(this[x][y], x, y);
+		
+		return this;
 	}
 	
 	/** Returns new Matrix with same values, or clone values to given Matrix instance.
@@ -71,7 +114,7 @@ class Matrix extends Array {
 	 * **/
 	add(m) {
 		if (this.width !== m.width || this.height !== m.height)
-			throw new Error(`Different dimensions of matrices. Given ${this.width}×${this.height} and ${m.width}×${m.height}. Must be the same!`);
+			throw new Error(`Different dimensions of matrices. Given (${this.width}×${this.height}) and (${m.width}×${m.height}). Must be the same!`);
 		for (let x = 0; x < this.width; x++)
 			for (let y = 0; y < this.height; y++)
 				this[x][y] += m[x][y];
@@ -84,7 +127,7 @@ class Matrix extends Array {
 	 * **/
 	subtract(m) {
 		if (this.width !== m.width || this.height !== m.height)
-			throw new Error(`Different dimensions of matrices. Given ${this.width}×${this.height} and ${m.width}×${m.height}. Must be the same!`);
+			throw new Error(`Different dimensions of matrices. Given (${this.width}×${this.height}) and (${m.width}×${m.height}). Must be the same!`);
 		for (let x = 0; x < this.width; x++)
 			for (let y = 0; y < this.height; y++)
 				this[x][y] -= m[x][y];
@@ -102,16 +145,56 @@ class Matrix extends Array {
 		return this;
 	}
 	
-	// Matrix transformations
-	/** Transpose matrix. Swap X and Y dimensions.
+	
+	/** Multiply matrix with given matrix. Return new matrix as multiplication product.
+	 * @param {Matrix} m
 	 * @return Matrix
 	 * **/
-	transpose() {
+	dot(m) {
+		if (this.width !== m.height)
+			throw new Error(`1 matrix cols must be equal 2 matrix rows. Given (${this.width}×${this.height}) and (${m.width}×${m.height}) matrices.`);
+		
+		let e = new Matrix(m.width, this.height);
+		
+		for (let x = 0; x < e.width; x++)
+			for (let y = 0; y < e.height; y++)
+				for (let i = 0; i < this.width; i++)
+					e[x][y] += m[x][i] * this[i][y];
+		
+		return e;
+	}
+	
+	// Matrix transformations
+	/** Return new matrix with swapped X and Y dimensions.
+	 * @return Matrix
+	 * **/
+	get T() {
 		let m = new Matrix(this.height, this.width);
 		for (let x = 0; x < this.width; x++)
 			for (let y = 0; y < this.height; y++)
 				m[y][x] = this[x][y];
-		this.fromArray(m);
+		return m;
+	}
+	
+	/** Change shape of matrix. Cut if width or height is bigger. expanded values become 0.
+	 * @param {number} width
+	 * @param {number} height
+	 * @return Matrix
+	 * **/
+	reshape(width, height) {
+		if (width < 1 || height < 1)
+			throw new RangeError(`New shape must have at least 1 row and 1 col!`);
+		
+		while (this.length > width) this.pop();  // cut width if necessary
+		for (let x = 0; x < width; x++) {
+			if (x >= this.length) this.push([]);  // add width if necessary
+			
+			while (this[x].length > height) this[x].pop();  // cut height if necessary
+			for (let y = 0; y < height; y++) {
+				if (y >= this[x].length) this[x].push(0);  // add height if necessary
+			}
+		}
+		
 		return this;
 	}
 	
