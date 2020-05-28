@@ -35,7 +35,7 @@ export default class GameOfLife {
 		// обработать поле по правилам
 		for (let y = 0; y < this._h; y++) {
 			for (let x = 0; x < this._w; x++) {
-				this._tmpField[y][x] = this.rule(x, y);
+				this._tmpField[y][x] = this.rule(x, y) ? 1 : 0;
 			}
 		}
 		// обработанное поле становится активным
