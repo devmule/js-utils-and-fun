@@ -183,7 +183,7 @@ class Matrix extends Array {
 	get I() {
 		// if det === 0, or matrix haven't det (det === null)
 		let d = this.det;
-		if (!d) return null; //throw new Error(`Determinant of matrix = 0, so it's cannot be inverted!`);
+		if (!d) return null;
 		
 		let m = new Matrix(this.length, this.length); // matrix is square
 		
@@ -211,7 +211,7 @@ class Matrix extends Array {
 	 * **/
 	get det() {
 		// only square matrix can have det
-		if (this.width !== this.height) return null; // throw new Error(`Only square matrix can have det!`);
+		if (this.width !== this.height) return null;
 		
 		let d = 0;
 		
