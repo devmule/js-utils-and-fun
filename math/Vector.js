@@ -4,7 +4,7 @@ class Vector extends Array {
 	/** Add one vector values to another vector values. Can work with different sizes vectors. Return new Vector.
 	 * @param {Vector} v1
 	 * @param {Vector} v2
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	static add(v1, v2) {
 		return v1.clone().add(v2);
@@ -13,7 +13,7 @@ class Vector extends Array {
 	/** Subtract one vector values to another vector values. Can work with different sizes vectors. Return new Vector.
 	 * @param {Vector} v1
 	 * @param {Vector} v2
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	static subtract(v1, v2) {
 		return v1.clone().subtract(v2);
@@ -22,7 +22,7 @@ class Vector extends Array {
 	/** Multiply every value of given vectors clone by given value. Return new Vector.
 	 * @param {Vector} v1
 	 * @param {number} val
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	static multiply(v1, val) {
 		return v1.clone().multiply(val);
@@ -31,7 +31,7 @@ class Vector extends Array {
 	/** Return dot product of given vectors.
 	 * @param {Vector} v1
 	 * @param {Vector} v2
-	 * @return number
+	 * @return {number}
 	 * **/
 	static dot(v1, v2) {
 		return v1.dot(v2);
@@ -40,7 +40,7 @@ class Vector extends Array {
 	/** Cross product of vectors.
 	 * Return vector as normal of shape (normal of line in 2D, normal of plane in 3D, normal of volume in 4D etc.).
 	 * @param {Vector} v
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	static cross(...v) {
 		// amount of vectors depends on vectors dimensions
@@ -94,7 +94,7 @@ class Vector extends Array {
 	/** Return cos of angle between given vectors.
 	 * @param {Vector} v1
 	 * @param {Vector} v2
-	 * @return Number
+	 * @return {Number}
 	 * **/
 	static cos(v1, v2) {
 		return v1.cos(v2);
@@ -103,7 +103,7 @@ class Vector extends Array {
 	/** Return angle between given vectors.
 	 * @param {Vector} v1
 	 * @param {Vector} v2
-	 * @return number
+	 * @return {number}
 	 * **/
 	static angle(v1, v2) {
 		return v1.angle(v2);
@@ -111,7 +111,7 @@ class Vector extends Array {
 	
 	/**
 	 * @param {number|Array} elements
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	constructor(...elements) {
 		super();
@@ -122,7 +122,7 @@ class Vector extends Array {
 	
 	/** Read elements from given array.
 	 * @param {Array} array
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	fromArray(array) {
 		while (this.length) this.pop();
@@ -131,7 +131,7 @@ class Vector extends Array {
 	}
 	
 	/** Returns scalar value of vector magnitude.
-	 * @return number
+	 * @return {number}
 	 * **/
 	get magnitude() {
 		return Math.sqrt(this.reduce((p, c, i, arr) => p + c * c));
@@ -146,7 +146,7 @@ class Vector extends Array {
 	}
 	
 	/** Returns new Vector with same values and dimensions.
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	clone() {
 		return new Vector(this);
@@ -155,7 +155,7 @@ class Vector extends Array {
 	// simple operations
 	/** Add given vector values to this vector values. Can work with different sizes vectors.
 	 * @param {Vector} v
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	add(v) {
 		for (let i = 0; i < Math.min(this.length, v.length); i++)
@@ -165,7 +165,7 @@ class Vector extends Array {
 	
 	/** Subtract given vector values from this vector values. Can work with different sizes vectors.
 	 * @param {Vector} v
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	subtract(v) {
 		for (let i = 0; i < Math.min(this.length, v.length); i++)
@@ -176,7 +176,7 @@ class Vector extends Array {
 	// scalar multiplication
 	/** Multiply every value of vector by given value.
 	 * @param {number} val
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	multiply(val) {
 		for (let i = 0; i < this.length; i++) this[i] *= val;
@@ -186,7 +186,7 @@ class Vector extends Array {
 	// vectors multiplications
 	/** Return dot product of this vector and given vector.
 	 * @param {Vector} v
-	 * @return number
+	 * @return {number}
 	 * **/
 	dot(v) {
 		let val = 0;
@@ -198,7 +198,7 @@ class Vector extends Array {
 	/** Cross product of this vector and given vectors.
 	 * Return new vector as normal of shape (normal of line in 2D, normal of plane in 3D, normal of volume in 4D etc.).
 	 * @param {Vector} v
-	 * @return Vector
+	 * @return {Vector}
 	 * **/
 	cross(...v) {
 		return Vector.cross(this, ...v);
@@ -207,7 +207,7 @@ class Vector extends Array {
 	// trigonometry
 	/** Returns cos of angle between this vector and given vector.
 	 * @param {Vector} v
-	 * @return number
+	 * @return {number}
 	 * **/
 	cos(v) {
 		return this.dot(v) / (this.magnitude * v.magnitude);
@@ -215,7 +215,7 @@ class Vector extends Array {
 	
 	/** Returns angle between this vector and given vector in radians.
 	 * @param {Vector} v
-	 * @return number
+	 * @return {number}
 	 * **/
 	angle(v) {
 		return Math.acos(this.cos(v));
