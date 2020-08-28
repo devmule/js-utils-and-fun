@@ -25,6 +25,13 @@
 		ctx = document.getElementById('canvas').getContext('2d'),
 		cosX, sinX, cosY, sinY, cosZ, sinZ, a, b, c, d, e, f, g, h, i; // представление трансформационной матрицы
 
+	document.addEventListener('mousemove', e => {
+		if (e.buttons) {
+			angles.x += e.movementY / 250;
+			angles.y += e.movementX / 250;
+		}
+	});
+
 	let transform = (anglesVector) => {
 		cosX = Math.cos(anglesVector.x);  //  в трёх измерениях матрицы поворота для осей X, Y, и Z имеют такой вид:
 		sinX = Math.sin(anglesVector.x);  //       |cosZ, -sinZ,  0|       |cosY,  0,  sinY|       |1,    0,    0  |
@@ -81,7 +88,9 @@
 		ctx.canvas.width = ctx.canvas.getBoundingClientRect().width;
 		ctx.canvas.height = ctx.canvas.getBoundingClientRect().height;
 
-		angles.x = angles.y = angles.z = Date.now() / 10000 % 1 * 2 * Math.PI; // полный оборот за 10000 мс.
+		angles.x += .01;
+		angles.y += .01;
+		angles.z += .01;
 		transform(angles);
 
 		ctx.beginPath();
