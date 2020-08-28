@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>transformation matrix demo</title>
+    <style>
+        * {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+</body>
+<script>
+	let angles = {x: 0, y: 0, z: 0},
+		tmpVector = {x: 0, y: 0, z: 0}, //     | y
+		dots = [],                      //     |
+		lines = [],                     //     0------ x
+		timer,                          //  z /
+		ctx = document.getElementById('canvas').getContext('2d'),
+		cosX, sinX, cosY, sinY, cosZ, sinZ, a, b, c, d, e, f, g, h, i; // представление трансформационной матрицы
+
+	let transform = (anglesVector) => {
+		cosX = Math.cos(anglesVector.x);  //  в трёх измерениях матрицы поворота для осей X, Y, и Z имеют такой вид:
+		sinX = Math.sin(anglesVector.x);  //       |cosZ, -sinZ,  0|       |cosY,  0,  sinY|       |1,    0,    0  |
+		cosY = Math.cos(anglesVector.y);  //  Rz = |sinZ, cosZ,   0|, Ry = |0,     1,  0   |, Rx = |0,  cosX, -sinX|
+		sinY = Math.sin(anglesVector.y);  //       |0,     0,     1|       |-sinY, 0,  cosY|       |0,  sinX,  cosX|
+		cosZ = Math.cos(anglesVector.z);  //
+		sinZ = Math.sin(anglesVector.z);  //
+		a = cosZ * cosY;                        //  матрицу поворотов по всем осям можно получить перемножив
+		b = cosZ * sinY * sinX - sinZ * cosX;   //  отдельные матрицы     |a, b, c|
+		c = cosZ * sinY * cosX + sinZ * sinX;   //  R = Rz(Z)Ry(Y)Rx(X) = |d, e, f|
+		d = sinZ * cosY;                        //                        |g, h, i|
+		e = sinZ * sinY * sinX + cosZ * cosX;   //
+		f = sinZ * sinY * cosX - cosZ * sinX;   //
+		g = -sinY;                              //
+		h = cosY * sinX;                        //
+		i = cosY * cosX;                        //
+	};
+
+	let multiplyMatrix = (v, vT) => {
+		vT.x = v.x * a + v.y * b + v.z * c;     // перемножение вектора и матрицы
+		vT.y = v.x * d + v.y * e + v.z * f;     // новый вектор - результат поворота по всем заданным ранее осям
+		vT.z = v.x * g + v.y * h + v.z * i;     //
+	};
+
+	let perspective = (v) => {
+		// применение эффекта перспективной матрицы, смещение в центр и увеличение изображения
+		v.x = v.x * 20 * (v.z + 5) + ctx.canvas.width / 2;    // перспективная матрица вообще 4х4, но действий
+		v.y = -v.y * 20 * (v.z + 5) + ctx.canvas.height / 2;  // там так мало, что новые переменные не нужны
+	};
+
+	let setTorus = (rings, ringSegments, ringSize, offset) => {
+		dots.length = 0;
+		lines.length = 0;
+		for (let i = 0; i < rings; i++) { // создание торуса.  положение точки зависит от положения плоскости,
+			transform({x: 0, y: Math.PI * 2 / rings * i, z: 0});                //     на которой рисуетс круг
+			for (let j = 0; j < ringSegments; j++) {                            //     с помощью матрицы можно
+				let angle = Math.PI * 2 / ringSegments * j;                     //     повернуть эту плоскость
+				tmpVector.x = ringSize * Math.cos(angle) + offset;              // а вместе с тем и координаты
+				tmpVector.y = ringSize * Math.sin(angle);                       //      каждой точки плоскости
+				tmpVector.z = 0;
+				let v = {x: 0, y: 0, z: 0};
+				multiplyMatrix(tmpVector, v);
+				dots.push(v);
+			}
+			for (let j = dots.length - ringSegments; j < dots.length; j++) // соединить точки в одном кольце по кругу
+				lines.push([dots[j], dots[(j + 1) % ringSegments + dots.length - ringSegments]])
+		}
+		for (let j = 0; j < dots.length; j++) // соединить точки на одном уровне между кольцами по кругу
+			lines.push([dots[j], dots[(j + ringSegments) % dots.length]]);
+	};
+
+	let togglePlaying = () => timer = timer ? clearInterval(timer) : setInterval(() => {
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		ctx.canvas.width = ctx.canvas.getBoundingClientRect().width;
+		ctx.canvas.height = ctx.canvas.getBoundingClientRect().height;
+
+		angles.x = angles.y = angles.z = Date.now() / 10000 % 1 * 2 * Math.PI; // полный оборот за 10000 мс.
+		transform(angles);
+
+		ctx.beginPath();
+		for (let j = 0; j < lines.length; j++) {
+			multiplyMatrix(lines[j][0], tmpVector);
+			perspective(tmpVector);
+			ctx.moveTo(tmpVector.x, tmpVector.y);
+			multiplyMatrix(lines[j][1], tmpVector);
+			perspective(tmpVector);
+			ctx.lineTo(tmpVector.x, tmpVector.y);
+		}
+		ctx.lineWidth = 3;
+		ctx.stroke();
+
+	}, 1000 / 60);
+
+	setTorus(24, 16, 1, 1.5);
+	togglePlaying();
+</script>
+</html>
