@@ -1,5 +1,5 @@
 /** Class representing a matrix. */
-class Matrix extends Array {
+export default class Matrix extends Array {
 	
 	/** Return new matrix. Elements of new matrix are sum of elements of given matrices in same position.
 	 * @param {Matrix} m1
@@ -29,12 +29,23 @@ class Matrix extends Array {
 	}
 	
 	/** Multiply given matrices. Return new matrix as multiplication product.
-	 * @param {Matrix} m1
 	 * @param {Matrix} m2
+	 * @param {Matrix} m1
 	 * @return {Matrix}
 	 * **/
 	static dot(m1, m2) {
-		return m1.dot(m2);
+		if (m2.width !== m1.height)
+			throw new Error(`1st matrix rows count must be equal 2nd matrix cols count. Given (${
+				m1.width}×${m1.height}) and (${m2.width}×${m2.height}) matrices. ${m2.width} != ${m1.height}`);
+		
+		let e = new Matrix(m1.width, m2.height);
+		
+		for (let x = 0; x < e.width; x++)
+			for (let y = 0; y < e.height; y++)
+				for (let i = 0; i < m2.width; i++)
+					e[x][y] += m1[x][i] * m2[i][y];
+		
+		return e;
 	}
 	
 	/**
@@ -82,8 +93,8 @@ class Matrix extends Array {
 		if (!array.length || !array[0].length)
 			throw new Error(`Array must be two-dimensional. Must have at least 1 row and 1 col!`);
 		
-		while (this.length) this.pop();
-		for (let i = 0; i < array.length; i++) this[i] = array[i].map(val => val);
+		this.length = 0;
+		for (let i = 0; i < array.length; i++) this[i] = [...array[i]];
 		
 		return this;
 	}
@@ -92,7 +103,7 @@ class Matrix extends Array {
 	 * @param {function(number, int, int)} func - function(elem value, elem X, elem Y)
 	 * @return {Matrix}
 	 * **/
-	forEach(func) {
+	forEachElement(func) {
 		for (let x = 0; x < this.width; x++)
 			for (let y = 0; y < this.height; y++)
 				this[x][y] = func(this[x][y], x, y);
@@ -135,13 +146,12 @@ class Matrix extends Array {
 	}
 	
 	/** Multiply every element of Matrix by given value. Return this matrix.
-	 * @param {number} val
+	 * @param {(number|Matrix)} val
 	 * @return {Matrix}
 	 * **/
 	multiply(val) {
-		this.forEach((e) => {
-			return e * val;
-		});
+		if (val instanceof Matrix) this.forEachElement((v, x, y) => v * val[x][y]);
+		else this.forEachElement(e => e * val);
 		return this;
 	}
 	
@@ -151,17 +161,7 @@ class Matrix extends Array {
 	 * @return {Matrix}
 	 * **/
 	dot(m) {
-		if (this.width !== m.height)
-			throw new Error(`1 matrix cols must be equal 2 matrix rows. Given (${this.width}×${this.height}) and (${m.width}×${m.height}) matrices.`);
-		
-		let e = new Matrix(m.width, this.height);
-		
-		for (let x = 0; x < e.width; x++)
-			for (let y = 0; y < e.height; y++)
-				for (let i = 0; i < this.width; i++)
-					e[x][y] += m[x][i] * this[i][y];
-		
-		return e;
+		return Matrix.dot(this, m);
 	}
 	
 	// Matrix transformations
@@ -181,6 +181,7 @@ class Matrix extends Array {
 	 * @return {(Matrix|null)}
 	 * **/
 	get I() {
+		// fixme похоже здесь есть некотрые ошибки -> Matrix([[0.5]]).I -> [[0]] wtf ?????
 		// if det === 0, or matrix haven't det (det === null)
 		let d = this.det;
 		if (!d) return null;
@@ -273,10 +274,8 @@ class Matrix extends Array {
 	/** Set every element of this matrix 1 if x == y, 0 otherwise. Return this matrix.
 	 * @return {Matrix}
 	 * **/
-	diagonalOnes() {
-		this.forEach((e, x, y) => {
-			return (x === y) ? 1 : 0;
-		});
+	identity() {
+		this.forEachElement((e, x, y) => (x === y) ? 1 : 0);
 		return this;
 	}
 	
@@ -285,9 +284,39 @@ class Matrix extends Array {
 	 * @return {Matrix}
 	 * **/
 	randomize(min = 0, max = 1) {
-		this.forEach((e) => {
-			return e + (Math.random() * (max - min) + min);
-		});
+		this.forEachElement((e) => e + (Math.random() * (max - min) + min));
 		return this;
+	}
+	
+	get abs() {
+		let a = this.clone();
+		a.forEachElement(Math.abs);
+		return a;
+	}
+	
+	get mean() {
+		let sum = 0;
+		this.forEach(el => el.forEach(val => sum += val));
+		return sum / this.width / this.height;
+	}
+	
+	toList() {
+		return [...this.clone()]
+	}
+	
+	averageCol(col) {
+		if (col < 0 || col >= this.width)
+			throw new RangeError(`Value must be in range [0, ${this.width - 1}].`);
+		let val = 0;
+		for (let i = 0; i < this.height; i++) val += this[col][i];
+		return val / this.height;
+	}
+	
+	averageRow(row) {
+		if (row < 0 || row >= this.height)
+			throw new RangeError(`Value must be in range [0, ${this.height - 1}].`);
+		let val = 0;
+		for (let i = 0; i < this.width; i++) val += this[i][row];
+		return val / this.width;
 	}
 }
