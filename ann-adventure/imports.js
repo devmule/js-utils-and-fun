@@ -1,1 +1,1 @@
-export * from '../MYDOM/'
+export * from '../MYDOM/index.js'
