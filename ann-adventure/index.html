@@ -3,51 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Artificial neural networks adventure</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+<div id="screen"></div>
 <script type="module">
-	import Rosenblatt from "./networks/Rosenblatt.js";
-	import Rumelhart from "./networks/Rumelhart.js";
-	import Matrix from "../math/Matrix.js";
-	import {sigmoid} from "./networks/activationFunctions.js";
-    window.Matrix = Matrix;
+	import Application from "./application/Application.js";
 
-	window.rrr = new Rosenblatt(2, 2, 1);
-	/*
-	rrr.inp_hid = new Matrix([[2.0326254, 8.80139506], [2.03262539, 8.80139504]]);
-	rrr.hid_out = new Matrix([[-41.92349961], [28.27802728]]);
-	rrr.hid_biases = new Matrix([[-3.16014976, -8.08850688]]);
-	rrr.out_biases = new Matrix([[-3.63795936]]);
-	*/
-	let values = [
-		[[[0, 0]], [[0]]],
-		[[[0, 1]], [[1]]],
-		[[[1, 0]], [[1]]],
-		[[[1, 1]], [[0]]],
-	];
-	rrr.learn(values, 30000, .8, console.log, 1000);
-	console.log([0, 0], rrr.feedForward([[0, 0]])[0]);
-	console.log([0, 1], rrr.feedForward([[0, 1]])[0]);
-	console.log([1, 0], rrr.feedForward([[1, 0]])[0]);
-	console.log([1, 1], rrr.feedForward([[1, 1]])[0]);
-
-	/*
-	let A = new Matrix([
-		[1, 2, 3],
-		[4, 5, 6]
-	]);
-	let B = new Matrix([
-		[7, 8],
-		[9, 1],
-		[2, 3]
-	]);
-	let C = A.dot(B);
-	console.log(A.toString());
-	console.log(B.toString());
-	console.log(C.toString());
-	*/
-
+	new Application(document.getElementById('screen'));
 </script>
 </body>
 </html>
