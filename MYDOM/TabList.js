@@ -8,12 +8,17 @@ class Tab extends DOMController {
 		this.cont.innerHTML = name;
 		this.disableSelection();
 		
+		let offset = 4;
+		
 		this.style.display = 'inline-block';
 		this.style.fontSize = PIXELS(STYLES.textSizeDefault);
-		this.style.padding = PIXELS((STYLES.heightDefault - STYLES.textSizeDefault) / 2);
-		this.height = STYLES.heightDefault - PIXELS_GET(this.style.padding) * 2;
+		this.style.padding = PIXELS((STYLES.heightDefault - STYLES.textSizeDefault - offset) / 2);
+		this.height = STYLES.heightDefault - PIXELS_GET(this.style.padding) * 2 - offset;
+		this.style.marginTop = PIXELS(offset);
+		this.style.marginLeft = this.style.marginRight = PIXELS(offset / 2);
 		
 		this.style.backgroundColor = HEXCOLOR(STYLES.colorLight);
+		this.style.color = HEXCOLOR(STYLES.colorPrimaryLight);
 		
 		this.style.borderTopLeftRadius = this.style.borderTopRightRadius = PIXELS(STYLES.radiusDefault);
 		
@@ -22,6 +27,7 @@ class Tab extends DOMController {
 	
 	set active(val) {
 		this.style.backgroundColor = HEXCOLOR(val ? STYLES.colorLight : STYLES.colorDark);
+		this.style.color = HEXCOLOR(val ? STYLES.colorPrimaryLight : STYLES.colorPrimaryDark);
 	}
 }
 
@@ -30,6 +36,7 @@ class TabContent extends DOMController {
 		super();
 		this.style.height = PERCENTS(100);
 		this.style.width = PERCENTS(100);
+		this.style.backgroundColor = HEXCOLOR(STYLES.colorLight);
 	}
 }
 
@@ -56,6 +63,9 @@ export class TabList extends DOMController {
 		)
 	}
 	
+	/**
+	 * @return {DOMController}
+	 */
 	addTab(id, name) {
 		if (!this.tabs[id]) {
 			let tab = new Tab(name);

@@ -15,6 +15,7 @@ export class Chart extends DOMController {
 			max: {x: 100, y: 100},
 			shift: {x: 0, y: 0},
 			grid: {x: 25, y: 25, color: 0x666666, lineWidth: 1},
+			backgroundColor: 0xFFFFFF,
 			
 		}
 	}
@@ -38,7 +39,8 @@ export class Chart extends DOMController {
 	}
 	
 	draw() {
-		this.ctx.clearRect(0, 0, this.width, this.height);
+		this.ctx.fillStyle = HEXCOLOR(this.settings.backgroundColor);
+		this.ctx.fillRect(0, 0, this.width, this.height);
 		
 		// lines
 		if (this.settings.min.x >= this.settings.max.x || this.settings.min.y >= this.settings.max.y)
