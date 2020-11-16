@@ -1,6 +1,6 @@
 import * as MYDOM from '../MYDOM/index.js';
 
-import Rosenblatt from "./networks/Rosenblatt.js";
+import {NetworkController} from "./application/NetworkController.js";
 
 import {Localizations} from "./Localizations.js";
 import {TabLearning} from "./application/TabLearning.js";
@@ -15,10 +15,9 @@ export default class extends MYDOM.DOMController {
 		this.style.width = this.style.height = MYDOM.PERCENTS(100);
 		this.style.backgroundColor = MYDOM.HEXCOLOR(MYDOM.STYLES.colorBlack);
 		
-		// ============================= NETWORK MODEL ==============================
+		// ============================= NETWORK ==============================
 		
-		this.network = new Rosenblatt(2, 2, 2);
-		this.trainingSamples = [];
+		this.networkController = new NetworkController();
 		
 		// ============================= INTERFACE ==============================
 		
