@@ -2,6 +2,23 @@
  * @param {(number|string)} val
  * @return {string}
  */
+export function DEGREES(val) {
+	return `rotate(${val}deg)`;
+}
+
+/**
+ * @param {string} val
+ * @return {number}
+ */
+export function DEGREES_GET(val) {
+	val = String(val).replace('rotate(', '').replace('deg)', '');
+	return parseInt(val);
+}
+
+/**
+ * @param {(number|string)} val
+ * @return {string}
+ */
 export function PIXELS(val) {
 	return val + 'px';
 }
@@ -11,7 +28,7 @@ export function PIXELS(val) {
  * @return {number}
  */
 export function PIXELS_GET(val) {
-	val = String(val).replace('px');
+	val = String(val).replace('px', '');
 	return parseInt(val);
 }
 
@@ -203,5 +220,21 @@ export class DOMController {
 	resize(w, h) {
 		this.width = w;
 		this.height = h;
+	}
+	
+	/**
+	 * @param {number} val
+	 */
+	set angle(val) {
+		this.style.msTransform = DEGREES(val);
+		this.style.transform = DEGREES(val);
+	}
+	
+	/**
+	 * @return {number}
+	 */
+	get angle() {
+		
+		return DEGREES_GET(this.style.transform || this.style.msTransform || 'rotate(0deg)');
 	}
 }
