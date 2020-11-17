@@ -215,10 +215,33 @@ class NetworkSettings extends MYDOM.DOMController {
 		this.style.height = MYDOM.PERCENTS(100);
 		this.tn = tn;
 		
-		this.input = new MYDOM.InputNumber(2, 1, 100, 1);
-		this.input.absolute = true;
-		this.input.x = this.input.y = 50;
-		this.add(this.input);
+		let network = tn.app.networkController.network;
+		
+		this.inpVal = new MYDOM.InputNumber(network.inp_hid.width, 1, 100, 1);
+		this.inpVal.absolute = true;
+		this.inpVal.x = 50;
+		this.inpVal.y = 50;
+		this.add(this.inpVal);
+		
+		this.hidVal = new MYDOM.InputNumber(network.inp_hid.height, 1, 100, 1);
+		this.hidVal.absolute = true;
+		this.hidVal.x = 50;
+		this.hidVal.y = 100;
+		this.add(this.hidVal);
+		
+		this.outVal = new MYDOM.InputNumber(network.hid_out.height, 1, 100, 1);
+		this.outVal.absolute = true;
+		this.outVal.x = 50;
+		this.outVal.y = 150;
+		this.add(this.outVal);
+		
+		this.inpVal.addEventListener('change', this.changed.bind(this));
+		this.hidVal.addEventListener('change', this.changed.bind(this));
+		this.outVal.addEventListener('change', this.changed.bind(this));
+	}
+	
+	changed() {
+		this.tn.app.networkController.setNetworkSize(this.inpVal.value, this.hidVal.value, this.outVal.value);
 	}
 }
 
