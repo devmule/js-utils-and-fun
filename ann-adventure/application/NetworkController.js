@@ -1,5 +1,6 @@
 import Rosenblatt from "../networks/Rosenblatt.js";
 import Matrix from "../../math/Matrix.js";
+import {EnumEvents} from "./ENUMS.js";
 
 export class NetworkController {
 	static updated = 'NC.updated';
@@ -21,7 +22,7 @@ export class NetworkController {
 	setNetworkSize(inp, hid, out) {
 		this.network.inp_hid.reshape(inp, hid).forEachElement(val => val || (Math.random() * 2 - 1));
 		this.network.hid_out.reshape(hid, out).forEachElement(val => val || (Math.random() * 2 - 1));
-		document.dispatchEvent(new CustomEvent(NetworkController.updated));
+		document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged));
 	}
 	
 	// ========== TRAINING SAMPLES ===========
@@ -49,7 +50,7 @@ export class NetworkController {
 					
 					if (errFreq > 1) {
 						errFreq = 0;
-						document.dispatchEvent(new CustomEvent(NetworkController.updated, {err: err}));
+						document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged, {err: err}));
 					}
 					requestAnimationFrame(learn.bind(this));
 					
@@ -63,7 +64,7 @@ export class NetworkController {
 	learnStop() {
 		if (this._isLearning) {
 			this._isLearning = false;
-			document.dispatchEvent(new CustomEvent(NetworkController.updated));
+			document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged));
 		}
 	}
 }

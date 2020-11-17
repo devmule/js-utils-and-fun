@@ -6,6 +6,7 @@ import {Localizations} from "./Localizations.js";
 import {TabLearning} from "./application/TabLearning.js";
 import {TabSamples} from "./application/TabSamples.js";
 import {TabNetwork} from "./application/TabNetwork.js";
+import {EnumEvents} from "./application/ENUMS.js";
 
 export default class extends MYDOM.DOMController {
 	constructor(elem) {
@@ -36,5 +37,6 @@ export default class extends MYDOM.DOMController {
 		this.tablist.addTab(TabLearning.name, Localizations.getText(TabLearning.name)).add(this.tabLearning);
 		
 		this.tablist.selectTab(TabNetwork.name);
+		document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged));
 	}
 }

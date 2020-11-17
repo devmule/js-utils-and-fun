@@ -3,6 +3,7 @@ import Application from "../Application.js";
 import Rosenblatt from "../networks/Rosenblatt.js";
 import {sigmoid, sigmoidDerivative} from "../networks/activationFunctions.js";
 import {NetworkController} from "./NetworkController.js";
+import {EnumEvents} from "./ENUMS.js";
 
 /**
  * @return {string}
@@ -20,28 +21,8 @@ function DARK_TO_WHITE(val = 0) {
 	return MYDOM.RGBA(val, val, val);
 }
 
-class CenterPosition extends MYDOM.DOMController {
-	
-	set x(val) {
-		this.style.left = MYDOM.PIXELS(val - NetworkNode.size / 2);
-	}
-	
-	get x() {
-		return MYDOM.PIXELS_GET(this.style.left) - NetworkNode.size;
-	}
-	
-	set y(val) {
-		this.style.top = MYDOM.PIXELS(val - NetworkNode.size / 2);
-	}
-	
-	get y() {
-		return MYDOM.PIXELS_GET(this.style.top) + NetworkNode.size;
-	}
-	
-}
-
-class NetworkNode extends CenterPosition {
-	static size = 36;
+class NetworkNode extends MYDOM.DOMController {
+	static size = 32;
 	static fontSize = 12;
 	
 	constructor() {
@@ -69,13 +50,32 @@ class NetworkNode extends CenterPosition {
 	get value() {
 		return parseFloat(this.cont.innerHTML);
 	}
+	
+	set x(val) {
+		this.style.left = MYDOM.PIXELS(val - NetworkNode.size / 2);
+	}
+	
+	get x() {
+		return MYDOM.PIXELS_GET(this.style.left) + NetworkNode.size / 2;
+	}
+	
+	set y(val) {
+		this.style.top = MYDOM.PIXELS(val - NetworkNode.size / 2);
+	}
+	
+	get y() {
+		return MYDOM.PIXELS_GET(this.style.top) + NetworkNode.size / 2;
+	}
 }
 
-class NetworkSynapse extends CenterPosition {
+class NetworkSynapse extends MYDOM.DOMController {
+	static size = 8;
+	static selectorSize = 1;
+	
 	constructor() {
 		super();
 		this.absolute = true;
-		this.height = 6;
+		this.height = NetworkSynapse.size;
 		this._val = 0;
 		
 		this.style.cursor = 'pointer';
@@ -86,13 +86,13 @@ class NetworkSynapse extends CenterPosition {
 	}
 	
 	mouseleave() {
-		this.height = 6;
+		this.height = NetworkSynapse.size;
 		this.style.border = 'none';
 	}
 	
 	mouseenter() {
-		this.height = 4;
-		this.style.border = "1px solid #FFFFFF";
+		this.height = NetworkSynapse.size - 2 * NetworkSynapse.selectorSize;
+		this.style.border = `${MYDOM.PIXELS(NetworkSynapse.selectorSize)} solid #FFFFFF`;
 	}
 	
 	set value(val) {
@@ -109,25 +109,33 @@ class NetworkSynapse extends CenterPosition {
 		let dx = node2.x - node1.x;
 		let dy = node2.y - node1.y;
 		this.width = Math.sqrt(dx * dx + dy * dy);
-		this.x = (node1.x + node2.x) / 2 - (this.width - dx) / 2;
-		this.y = (node1.y + node2.y) / 2;
+		this.x = (node1.x + node2.x - this.width) / 2;
+		this.y = (node1.y + node2.y - this.height) / 2;
 		this.angle = Math.atan(dy / dx) * 180 / Math.PI;
 	}
 }
 
-export class TabNetwork extends MYDOM.DOMController {
-	constructor(/*Application*/app) {
+class NetworkVisualization extends MYDOM.DOMController {
+	constructor(/*TabNetwork*/tn) {
 		super();
-		this.app = app;
-		this.style.width = MYDOM.PERCENTS(100);
+		this.absolute = true;
+		this.x = 300;
+		this.style.width = `calc(${MYDOM.PERCENTS(100)} - ${MYDOM.PIXELS(300)})`;
 		this.style.height = MYDOM.PERCENTS(100);
 		this.style.position = 'relative';
 		this.style.overflowY = 'scroll';
 		
+		this.tn = tn;
+		
 		this.cacheNodes = [];
 		this.cacheSynapses = [];
 		
-		document.addEventListener(NetworkController.updated, this.update.bind(this));
+		this.settings = {
+			vOffset: 64,
+			hOffset: 200,
+		};
+		
+		document.addEventListener(EnumEvents.onNetworkChanged, this.update.bind(this));
 	}
 	
 	getNode(i) {
@@ -141,8 +149,7 @@ export class TabNetwork extends MYDOM.DOMController {
 	}
 	
 	update() {
-		let vOffset = 48, hOffset = 150;
-		let /*Rosenblatt*/ network = this.app.networkController.network;
+		let /*Rosenblatt*/ network = this.tn.app.networkController.network;
 		
 		let maxHeight = Math.max(network.inp_hid.width, network.inp_hid.height, network.hid_out.height);
 		
@@ -153,24 +160,24 @@ export class TabNetwork extends MYDOM.DOMController {
 		
 		for (let i = 0; i < network.inp_hid.width; i++) {
 			let node = this.getNode(nodeIndex++);
-			node.x = hOffset;
-			node.y = ((maxHeight - network.inp_hid.width) / 2 + i + 1) * vOffset;
+			node.x = this.settings.hOffset;
+			node.y = ((maxHeight - network.inp_hid.width) / 2 + i + 1) * this.settings.vOffset;
 			nodes.inp.push(node);
 			node.value = 1;
 			this.add(node);
 		}
 		for (let i = 0; i < network.inp_hid.height; i++) {
 			let node = this.getNode(nodeIndex++);
-			node.x = hOffset * 2;
-			node.y = ((maxHeight - network.inp_hid.height) / 2 + i + 1) * vOffset;
+			node.x = this.settings.hOffset * 2;
+			node.y = ((maxHeight - network.inp_hid.height) / 2 + i + 1) * this.settings.vOffset;
 			nodes.hid.push(node);
 			node.value = 1;
 			this.add(node);
 		}
 		for (let i = 0; i < network.hid_out.height; i++) {
 			let node = this.getNode(nodeIndex++);
-			node.x = hOffset * 3;
-			node.y = ((maxHeight - network.hid_out.height) / 2 + i + 1) * vOffset;
+			node.x = this.settings.hOffset * 3;
+			node.y = ((maxHeight - network.hid_out.height) / 2 + i + 1) * this.settings.vOffset;
 			nodes.out.push(node);
 			node.value = 1;
 			this.add(node);
@@ -197,5 +204,33 @@ export class TabNetwork extends MYDOM.DOMController {
 			this.add(synapse);
 		}
 		for (let i = synapseIndex; i < this.cacheSynapses.length; i++) this.cacheSynapses[i].removeFromParent();
+	}
+}
+
+class NetworkSettings extends MYDOM.DOMController {
+	constructor(/*TabNetwork*/tn) {
+		super();
+		this.absolute = true;
+		this.style.width = MYDOM.PIXELS(300);
+		this.style.height = MYDOM.PERCENTS(100);
+		this.tn = tn;
+		
+		this.input = new MYDOM.InputNumber(2, 1, 100, 1);
+		this.input.absolute = true;
+		this.input.x = this.input.y = 50;
+		this.add(this.input);
+	}
+}
+
+export class TabNetwork extends MYDOM.DOMController {
+	constructor(app) {
+		super();
+		this.style.width = MYDOM.PERCENTS(100);
+		this.style.height = MYDOM.PERCENTS(100);
+		
+		this.app = app;
+		
+		this.add(new NetworkSettings(this));
+		this.add(new NetworkVisualization(this));
 	}
 }

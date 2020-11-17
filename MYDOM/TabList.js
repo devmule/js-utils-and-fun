@@ -17,7 +17,7 @@ class Tab extends DOMController {
 		this.style.marginTop = PIXELS(offset);
 		this.style.marginLeft = this.style.marginRight = PIXELS(offset / 2);
 		
-		this.style.backgroundColor = HEXCOLOR(STYLES.colorLight);
+		this.style.backgroundColor = HEXCOLOR(STYLES.colorCommon);
 		this.style.color = HEXCOLOR(STYLES.colorPrimaryLight);
 		
 		this.style.borderTopLeftRadius = this.style.borderTopRightRadius = PIXELS(STYLES.radiusDefault);
@@ -26,7 +26,7 @@ class Tab extends DOMController {
 	}
 	
 	set active(val) {
-		this.style.backgroundColor = HEXCOLOR(val ? STYLES.colorLight : STYLES.colorDark);
+		this.style.backgroundColor = HEXCOLOR(val ? STYLES.colorCommon : STYLES.colorDark);
 		this.style.color = HEXCOLOR(val ? STYLES.colorPrimaryLight : STYLES.colorPrimaryDark);
 	}
 }
@@ -36,7 +36,7 @@ class TabContent extends DOMController {
 		super();
 		this.style.height = PERCENTS(100);
 		this.style.width = PERCENTS(100);
-		this.style.backgroundColor = HEXCOLOR(STYLES.colorLight);
+		this.style.backgroundColor = HEXCOLOR(STYLES.colorCommon);
 	}
 }
 

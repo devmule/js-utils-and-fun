@@ -13,4 +13,5 @@ export const STYLES = {
 	heightDefault: 48,
 	
 	textSizeDefault: 16,
+	textSizeBig: 32,
 };
