@@ -1,8 +1,5 @@
 import * as MYDOM from '../../MYDOM/index.js';
-import Application from "../Application.js";
-import Rosenblatt from "../networks/Rosenblatt.js";
-import {sigmoid, sigmoidDerivative} from "../networks/activationFunctions.js";
-import {NetworkController} from "./NetworkController.js";
+import {sigmoid, sigmoidInverse} from "../networks/activationFunctions.js";
 import {EnumEvents} from "./ENUMS.js";
 
 /**
@@ -20,6 +17,42 @@ function DARK_TO_WHITE(val = 0) {
 	val = (0.1 + Math.max(0, Math.min(1, val)) * 0.8) * 255;
 	return MYDOM.RGBA(val, val, val);
 }
+
+class SynapseValue extends MYDOM.DOMController {
+	constructor() {
+		super();
+		
+		this.absolute = true;
+		this.visible = false;
+		
+		this.cont.innerHTML = String(Infinity);
+		
+		this.style.backgroundColor = MYDOM.HEXCOLOR(MYDOM.STYLES.colorBlack, .5);
+		this.style.color = MYDOM.HEXCOLOR(MYDOM.STYLES.colorWhite);
+		this.style.borderRadius = MYDOM.PIXELS(MYDOM.STYLES.radiusDefault);
+		this.style.fontSize = MYDOM.PIXELS(MYDOM.STYLES.textSizeDefault);
+		this.style.paddingTop = this.style.paddingBottom =
+			MYDOM.PIXELS((MYDOM.STYLES.heightDefault - MYDOM.PIXELS_GET(this.style.fontSize)) / 2);
+		
+		this.height = MYDOM.PIXELS_GET(this.style.fontSize);
+		this.width = 100;
+		
+		this.style.textAlign = 'center';
+		this.style.zIndex = '2';
+	}
+	
+	moveTo(x, y) {
+		this.x = x - this.height / 2;
+		this.y = y + 25;
+	}
+	
+	set value(val) {
+		console.log(val);
+		this.cont.innerHTML = val.toExponential(2).toString();
+	}
+}
+
+let synapseValue = new SynapseValue();
 
 class NetworkNode extends MYDOM.DOMController {
 	static size = 32;
@@ -68,14 +101,17 @@ class NetworkNode extends MYDOM.DOMController {
 	}
 }
 
-class NetworkSynapse extends MYDOM.DOMController {
+class Synapse extends MYDOM.DOMController {
 	static size = 8;
 	static selectorSize = 1;
 	
 	constructor() {
 		super();
 		this.absolute = true;
-		this.height = NetworkSynapse.size;
+		this.height = Synapse.size;
+		
+		this._m = {m: /*Matrix*/ null, x: 0, y: 0};
+		
 		this._val = 0;
 		
 		this.style.cursor = 'pointer';
@@ -83,26 +119,41 @@ class NetworkSynapse extends MYDOM.DOMController {
 		
 		this.addEventListener('mouseenter', this.mouseenter.bind(this));
 		this.addEventListener('mouseleave', this.mouseleave.bind(this));
+		this.addEventListener('wheel', this.wheel.bind(this));
 	}
 	
-	mouseleave() {
-		this.height = NetworkSynapse.size;
+	wheel(e) {
+		e = e || window.event;
+		let delta = (e.deltaY || e.detail || e.wheelDelta) > 0 ? -1 : +1;
+		e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+		this.value = sigmoidInverse(Math.max(0, Math.min(1, sigmoid(Number(this.value)) + 0.05 * delta)));
+		this._m.m[this._m.x][this._m.y] = synapseValue.value = this.value;
+	}
+	
+	mouseleave(e) {
+		this.height = Synapse.size;
 		this.style.border = 'none';
+		synapseValue.visible = false;
 	}
 	
-	mouseenter() {
-		this.height = NetworkSynapse.size - 2 * NetworkSynapse.selectorSize;
-		this.style.border = `${MYDOM.PIXELS(NetworkSynapse.selectorSize)} solid #FFFFFF`;
+	mouseenter(e) {
+		this.height = Synapse.size - 2 * Synapse.selectorSize;
+		this.style.border = `${MYDOM.PIXELS(Synapse.selectorSize)} solid #FFFFFF`;
+		synapseValue.visible = true;
+		synapseValue.moveTo(
+			this.x + (this.width / 2) * Math.cos(this.angle / (180 / Math.PI)),
+			this.y - (this.height / 2) * Math.sin(this.angle / (180 / Math.PI))
+		);
+		synapseValue.value = this.value;
 	}
 	
 	set value(val) {
-		if (String(val).length > 7) val = val.toExponential(1);
 		this._val = val;
 		this.style.backgroundColor = RED_TO_BLUE(sigmoid(val));
 	}
 	
 	get value() {
-		return this._val;
+		return Number(this._val);
 	}
 	
 	connect(/*NetworkNode*/node1, /*NetworkNode*/node2) {
@@ -115,7 +166,7 @@ class NetworkSynapse extends MYDOM.DOMController {
 	}
 }
 
-class NetworkVisualization extends MYDOM.DOMController {
+class Visualization extends MYDOM.DOMController {
 	constructor(/*TabNetwork*/tn) {
 		super();
 		this.absolute = true;
@@ -135,6 +186,8 @@ class NetworkVisualization extends MYDOM.DOMController {
 			hOffset: 200,
 		};
 		
+		this.add(synapseValue);
+		
 		document.addEventListener(EnumEvents.onNetworkChanged, this.update.bind(this));
 	}
 	
@@ -144,7 +197,7 @@ class NetworkVisualization extends MYDOM.DOMController {
 	}
 	
 	getSynapse(i) {
-		if (!this.cacheSynapses[i]) this.cacheSynapses[i] = new NetworkSynapse();
+		if (!this.cacheSynapses[i]) this.cacheSynapses[i] = new Synapse();
 		return this.cacheSynapses[i];
 	}
 	
@@ -188,7 +241,10 @@ class NetworkVisualization extends MYDOM.DOMController {
 		let synapseIndex = 0;
 		
 		for (let i = 0; i < nodes.inp.length; i++) for (let j = 0; j < nodes.hid.length; j++) {
-			let synapse = this.getSynapse(synapseIndex++);
+			let synapse /*Synapse*/ = this.getSynapse(synapseIndex++);
+			synapse._m.m = network.inp_hid;
+			synapse._m.x = i;
+			synapse._m.y = j;
 			let node1 = nodes.inp[i];
 			let node2 = nodes.hid[j];
 			synapse.connect(node1, node2);
@@ -196,7 +252,10 @@ class NetworkVisualization extends MYDOM.DOMController {
 			this.add(synapse);
 		}
 		for (let i = 0; i < nodes.hid.length; i++) for (let j = 0; j < nodes.out.length; j++) {
-			let synapse = this.getSynapse(synapseIndex++);
+			let synapse /*Synapse*/ = this.getSynapse(synapseIndex++);
+			synapse._m.m = network.hid_out;
+			synapse._m.x = i;
+			synapse._m.y = j;
 			let node1 = nodes.hid[i];
 			let node2 = nodes.out[j];
 			synapse.connect(node1, node2);
@@ -207,7 +266,7 @@ class NetworkVisualization extends MYDOM.DOMController {
 	}
 }
 
-class NetworkSettings extends MYDOM.DOMController {
+class Settings extends MYDOM.DOMController {
 	constructor(/*TabNetwork*/tn) {
 		super();
 		this.absolute = true;
@@ -253,7 +312,7 @@ export class TabNetwork extends MYDOM.DOMController {
 		
 		this.app = app;
 		
-		this.add(new NetworkSettings(this));
-		this.add(new NetworkVisualization(this));
+		this.add(new Settings(this));
+		this.add(new Visualization(this));
 	}
 }

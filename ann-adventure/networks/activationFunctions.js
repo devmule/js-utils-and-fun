@@ -1,3 +1,7 @@
+export function sigmoidInverse(x) {
+	return -Math.log(1 / x - 1);
+}
+
 export function sigmoid(x) {
 	return 1 / (1 + Math.exp(-x));
 }
