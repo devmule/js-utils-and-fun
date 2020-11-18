@@ -7,9 +7,24 @@ export default class Rumelhart {
 		this._synapses = [];
 		this._biases = [];
 		for (let i = 0; i < ls.length - 1; i++) {
-			this._synapses.push(new Matrix(ls[i], ls[i + 1]).randomize(-10, 10));
-			this._biases.push(new Matrix(1, ls[i + 1]).randomize(-10, 10));
+			this._synapses.push(new Matrix(ls[i], ls[i + 1]).randomize(-1, 1));
+			this._biases.push(new Matrix(1, ls[i + 1]).randomize(-1, 1));
 		}
+	}
+	
+	get raw() {
+		return JSON.stringify({
+			synapses: this._synapses,
+			biases: this._biases,
+		});
+	}
+	
+	set raw(val) {
+		val = JSON.parse(val);
+		this._synapses.length = 0;
+		for (let i = 0; i < val.synapses.length; i++) this._synapses.push(new Matrix(val.synapses[i]));
+		this._biases.length = 0;
+		for (let i = 0; i < val.biases.length; i++) this._biases.push(new Matrix(val.biases[i]));
 	}
 	
 	feedForward(inp) {

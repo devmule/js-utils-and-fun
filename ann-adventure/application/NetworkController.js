@@ -22,6 +22,8 @@ export class NetworkController {
 	setNetworkSize(inp, hid, out) {
 		this.network.inp_hid.reshape(inp, hid).forEachElement(val => val || (Math.random() * 2 - 1));
 		this.network.hid_out.reshape(hid, out).forEachElement(val => val || (Math.random() * 2 - 1));
+		this.network.hid_biases.reshape(1, hid).forEachElement(val => val || (Math.random() * 2 - 1));
+		this.network.out_biases.reshape(1, out).forEachElement(val => val || (Math.random() * 2 - 1));
 		document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged));
 	}
 	
