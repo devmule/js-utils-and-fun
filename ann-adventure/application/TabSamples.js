@@ -3,6 +3,15 @@ import Application from "../Application.js";
 import {Localizations} from "../Localizations.js";
 import {EnumEvents} from "./ENUMS.js";
 
+function canJSON(string) {
+	try {
+		JSON.parse(string);
+	} catch (e) {
+		return false;
+	}
+	return true;
+}
+
 class TableLine extends MYDOM.DOMController {
 	constructor() {
 		super();
@@ -29,15 +38,25 @@ class TableLine extends MYDOM.DOMController {
 		this.resize(window.innerWidth - 200, window.innerHeight - MYDOM.STYLES.heightDefault);
 	}
 	
+	update(nc) {
+		this.inp.style.backgroundColor = MYDOM.HEXCOLOR((this.value[0] && this.value[0][0].length === nc.network.inp_hid.width &&
+			!this.value[0][0].find(v => isNaN(v))) ? MYDOM.STYLES.colorLight : MYDOM.STYLES.colorError);
+		this.out.style.backgroundColor = MYDOM.HEXCOLOR((this.value[1] && this.value[1][0].length === nc.network.hid_out.height &&
+			!this.value[1][0].find(v => isNaN(v))) ? MYDOM.STYLES.colorLight : MYDOM.STYLES.colorError);
+		return (this.inp.style.backgroundColor === MYDOM.HEXCOLOR(MYDOM.STYLES.colorLight) && this.out.style.backgroundColor === MYDOM.HEXCOLOR(MYDOM.STYLES.colorLight));
+	}
+	
 	set value(val) {
 		this.inp.value = JSON.stringify(val[0][0]).replace('[', '').replace(']', '');
 		this.out.value = JSON.stringify(val[1][0]).replace('[', '').replace(']', '');
 	}
 	
 	get value() {
+		let inp = '[' + this.inp.value + ']';
+		let out = '[' + this.out.value + ']';
 		return [
-			JSON.parse('[' + this.inp.value + ']').map(v => Number(v)),
-			JSON.parse('[' + this.out.value + ']').map(v => Number(v)),
+			canJSON(inp) ? [JSON.parse(inp).map(v => Number(v))] : null,
+			canJSON(out) ? [JSON.parse(out).map(v => Number(v))] : null,
 		];
 	}
 	
@@ -72,15 +91,6 @@ export class TabSamples extends MYDOM.DOMController {
 		document.addEventListener(EnumEvents.onNetworkChanged, this.update.bind(this));
 	}
 	
-	canJSON(string) {
-		try {
-			JSON.parse(string);
-		} catch (e) {
-			return false;
-		}
-		return true;
-	}
-	
 	deleteLine(index) {
 		let nc = this.app.networkController;
 		nc.trainingSamples.splice(index, 1);
@@ -101,12 +111,8 @@ export class TabSamples extends MYDOM.DOMController {
 			let nc = this.app.networkController;
 			let line = this.cacheLines[index] = new TableLine();
 			line.deleteBtn.addEventListener('click', this.deleteLine.bind(this, index));
-			line.inp.input.addEventListener('input', () => line.inp.style.backgroundColor = MYDOM.HEXCOLOR(
-				(this.canJSON('[' + line.inp.value + ']') && nc.sampleIsFitInp(line.value[0])) ?
-					MYDOM.STYLES.colorLight : MYDOM.STYLES.colorError));
-			line.out.input.addEventListener('input', () => line.out.style.backgroundColor = MYDOM.HEXCOLOR(
-				(this.canJSON('[' + line.out.value + ']') && nc.sampleIsFitOut(line.value[1])) ?
-					MYDOM.STYLES.colorLight : MYDOM.STYLES.colorError));
+			line.inp.input.addEventListener('input', () => line.update(nc) ? nc.trainingSamples[index] = line.value : null);
+			line.out.input.addEventListener('input', () => line.update(nc) ? nc.trainingSamples[index] = line.value : null);
 		}
 		return this.cacheLines[index];
 	}
