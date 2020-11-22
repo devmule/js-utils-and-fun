@@ -3,12 +3,14 @@ import Matrix from "../../math/Matrix.js";
 import {EnumEvents} from "./ENUMS.js";
 
 export class NetworkController {
-	static updated = 'NC.updated';
-	static errorGet = 'NC.errorGet';
-	
 	constructor() {
-		this.network = new Rosenblatt(2, 3, 4);
-		this.trainingSamples = [];
+		this.network = new Rosenblatt(2, 2, 1);
+		this.trainingSamples = [
+			[[[0, 0]], [[0]]],
+			[[[0, 1]], [[1]]],
+			[[[1, 0]], [[1]]],
+			[[[1, 1]], [[0]]],
+		];
 		
 		this.settings = {
 			epochs: 10000,
@@ -24,15 +26,35 @@ export class NetworkController {
 		this.network.hid_out.reshape(hid, out).forEachElement(val => val || (Math.random() * 2 - 1));
 		this.network.hid_biases.reshape(1, hid).forEachElement(val => val || (Math.random() * 2 - 1));
 		this.network.out_biases.reshape(1, out).forEachElement(val => val || (Math.random() * 2 - 1));
+		
+		for (let i = 0; i < this.trainingSamples.length; i++) {
+			let sample = this.trainingSamples[i];
+			
+			let sample_inp = sample[0][0];
+			sample_inp.length = inp;
+			for (let j = 0; j < sample_inp.length; j++) if (sample_inp[j] === undefined) sample_inp[j] = 0;
+			
+			let sample_out = sample[1][0];
+			sample_out.length = out;
+			for (let j = 0; j < sample_out.length; j++) if (sample_out[j] === undefined) sample_out[j] = 0;
+		}
+		
 		document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged));
 	}
 	
 	// ========== TRAINING SAMPLES ===========
-	sampleIsFit(sample) {
-		// [ [[1, 1]], [[1, 1]] ]
-		return (sample &&
-			sample[0][0].length === this.network.inp_hid.width &&
-			sample[1][0].length === this.network.hid_out.height)
+	get isSamplesFit() {
+		return !this.trainingSamples.find(
+			sample => !this.sampleIsFitInp(sample[0][0]) || this.sampleIsFitOut(sample[1][0])
+		);
+	}
+	
+	sampleIsFitInp(inp) {
+		return inp && inp.length === this.network.inp_hid.width && !inp.find(v => isNaN(v));
+	}
+	
+	sampleIsFitOut(out) {
+		return out && out.length === this.network.hid_out.height && !out.find(v => isNaN(v));
 	}
 	
 	// ========== LEARNING ===========

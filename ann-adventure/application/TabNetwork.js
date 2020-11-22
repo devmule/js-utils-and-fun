@@ -313,22 +313,24 @@ class Settings extends MYDOM.DOMController {
 		
 		let network = tn.app.networkController.network;
 		
+		let offset = 16;
+		
 		this.inpVal = new MYDOM.InputNumber(network.inp_hid.width, 1, 100, 1);
 		this.inpVal.absolute = true;
-		this.inpVal.x = 50;
-		this.inpVal.y = 50;
+		this.inpVal.x = 52;
+		this.inpVal.y = offset;
 		this.add(this.inpVal);
 		
 		this.hidVal = new MYDOM.InputNumber(network.inp_hid.height, 1, 100, 1);
 		this.hidVal.absolute = true;
-		this.hidVal.x = 50;
-		this.hidVal.y = 100;
+		this.hidVal.x = 52;
+		this.hidVal.y = this.inpVal.y + this.inpVal.height + offset;
 		this.add(this.hidVal);
 		
 		this.outVal = new MYDOM.InputNumber(network.hid_out.height, 1, 100, 1);
 		this.outVal.absolute = true;
-		this.outVal.x = 50;
-		this.outVal.y = 150;
+		this.outVal.x = 52;
+		this.outVal.y = this.hidVal.y + this.hidVal.height + offset;
 		this.add(this.outVal);
 		
 		this.inpVal.addEventListener('change', this.changed.bind(this));

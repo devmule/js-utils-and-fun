@@ -5,6 +5,7 @@ export const STYLES = {
 	colorCommon: 0x313335,
 	colorDark: 0x2B2B2B,
 	colorSuccess: 0x579242,
+	colorError: 0xFF6B68,
 	colorPrimaryDark: 0xBD8E3E,
 	colorPrimaryLight: 0xFFC66D,
 	

@@ -7,6 +7,9 @@ export const Localizations = {
 			TabLearning: 'Обучение сети',
 			TabSamples: 'Обучающая выборка',
 			TabNetwork: 'Вид сети',
+			InputValues: 'Входные значения',
+			OutputValues: 'Выходные значения',
+			Delete: '\uD83D\uDDD1\uFE0F',
 		}
 	},
 	

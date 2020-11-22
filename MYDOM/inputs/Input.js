@@ -25,6 +25,16 @@ export class Input extends DOMController {
 		if (placeholder !== null) this.placeholder = placeholder;
 	}
 	
+	set value(val) {
+		let prev = this.value;
+		this.input.cont.value = val;
+		if (this.value !== prev) this.cont.dispatchEvent(new Event('change'));
+	}
+	
+	get value() {
+		return this.input.cont.value;
+	}
+	
 	set height(val) {
 		super.height = val;
 		this.input.height = val
