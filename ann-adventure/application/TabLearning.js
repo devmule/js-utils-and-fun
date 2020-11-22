@@ -89,7 +89,7 @@ class Chart extends MYDOM.LineChart {
 		let x = (e.x - this.settings.offset.left) / this.chart.width * (this.chart.settings.max.x - this.chart.settings.min.x) + this.chart.settings.min.x;
 		//let y = (1 - (e.y - MYDOM.STYLES.heightDefault - this.settings.offset.top) / this.chart.height) * (this.chart.settings.max.y - this.chart.settings.min.y) + this.chart.settings.min.y;
 		chartValue.moveTo(e.x, this.settings.offset.top + this.chart.height * (1 - this.value(x)));
-		chartValue.value = x//this.value(x);
+		chartValue.value = this.value(x);
 	}
 	
 	value(x) {
