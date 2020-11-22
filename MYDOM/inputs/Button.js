@@ -16,6 +16,18 @@ export class Button extends DOMController {
 		
 		this.height = STYLES.heightDefault;
 		this.width = 200;
+		
+		this.disabled = false;
+		this.cont.addEventListener('click', e => this.disabled ? e.stopImmediatePropagation() : null, false);
+	}
+	
+	set disabled(val) {
+		this.style.cursor = val ? 'not-allowed' : 'pointer';
+		this.cont.disabled = !!val;
+	}
+	
+	get disabled() {
+		return this.cont.disabled;
 	}
 	
 	set height(val) {

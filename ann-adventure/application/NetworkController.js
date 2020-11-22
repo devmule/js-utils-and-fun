@@ -9,16 +9,20 @@ export class NetworkController {
 			[[[0, 0]], [[0]]],
 			[[[0, 1]], [[1]]],
 			[[[1, 0]], [[1]]],
-			[[[1, 1]], [[0]]],
+			[[[1, 1]], [[1]]],
 		];
 		
 		this.settings = {
 			epochs: 10000,
-			lr: 0.1,
-			errFrequency: 1 / 1000,
+			lr: 0.5,
+			errFrequency: 100 / 1000,
 		};
 		
 		this._isLearning = false;
+	}
+	
+	get isLearning() {
+		return this._isLearning;
 	}
 	
 	setNetworkSize(inp, hid, out) {
@@ -45,7 +49,7 @@ export class NetworkController {
 	// ========== TRAINING SAMPLES ===========
 	get isSamplesFit() {
 		return !this.trainingSamples.find(
-			sample => !this.sampleIsFitInp(sample[0][0]) || this.sampleIsFitOut(sample[1][0])
+			sample => !this.sampleIsFitInp(sample[0][0]) || !this.sampleIsFitOut(sample[1][0])
 		);
 	}
 	
@@ -74,7 +78,8 @@ export class NetworkController {
 					
 					if (errFreq > 1) {
 						errFreq = 0;
-						document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged, {err: err}));
+						document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkErrorGet, {detail: {err: err}}));
+						document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged));
 					}
 					requestAnimationFrame(learn.bind(this));
 					

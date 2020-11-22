@@ -39,11 +39,11 @@ class TableLine extends MYDOM.DOMController {
 	}
 	
 	update(nc) {
-		this.inp.style.backgroundColor = MYDOM.HEXCOLOR((this.value[0] && this.value[0][0].length === nc.network.inp_hid.width &&
-			!this.value[0][0].find(v => isNaN(v))) ? MYDOM.STYLES.colorLight : MYDOM.STYLES.colorError);
-		this.out.style.backgroundColor = MYDOM.HEXCOLOR((this.value[1] && this.value[1][0].length === nc.network.hid_out.height &&
-			!this.value[1][0].find(v => isNaN(v))) ? MYDOM.STYLES.colorLight : MYDOM.STYLES.colorError);
-		return (this.inp.style.backgroundColor === MYDOM.HEXCOLOR(MYDOM.STYLES.colorLight) && this.out.style.backgroundColor === MYDOM.HEXCOLOR(MYDOM.STYLES.colorLight));
+		let inpClear = (this.value[0] && this.value[0][0].length === nc.network.inp_hid.width && !this.value[0][0].find(v => isNaN(v)));
+		let outClear = (this.value[1] && this.value[1][0].length === nc.network.hid_out.height && !this.value[1][0].find(v => isNaN(v)));
+		this.inp.style.backgroundColor = MYDOM.HEXCOLOR(inpClear ? MYDOM.STYLES.colorLight : MYDOM.STYLES.colorError);
+		this.out.style.backgroundColor = MYDOM.HEXCOLOR(outClear ? MYDOM.STYLES.colorLight : MYDOM.STYLES.colorError);
+		return !!(inpClear && outClear);
 	}
 	
 	set value(val) {
