@@ -91,8 +91,11 @@ class NetworkNode extends MYDOM.DOMController {
 			e = e || window.event;
 			let delta = (e.deltaY || e.detail || e.wheelDelta) > 0 ? -1 : +1;
 			e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-			this.value = sigmoidInverse(Math.max(0, Math.min(1, sigmoid(Number(this.value)) + 0.05 * delta)));
-			this._m.m[this._m.x][this._m.y] = synapseValue.value = this.value;
+			let val = sigmoidInverse(Math.max(0, Math.min(1, sigmoid(Number(this.value)) + 0.05 * delta)));
+			if (val === Infinity) val = 1e+100;
+			if (val === -Infinity) val = -1e+100;
+			this.value = val;
+			this._m.m[this._m.x][this._m.y] = synapseValue.value = val;
 		}
 	}
 	
@@ -178,8 +181,11 @@ class Synapse extends MYDOM.DOMController {
 			e = e || window.event;
 			let delta = (e.deltaY || e.detail || e.wheelDelta) > 0 ? -1 : +1;
 			e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-			this.value = sigmoidInverse(Math.max(0, Math.min(1, sigmoid(Number(this.value)) + 0.05 * delta)));
-			this._m.m[this._m.x][this._m.y] = synapseValue.value = this.value;
+			let val = sigmoidInverse(Math.max(0, Math.min(1, sigmoid(Number(this.value)) + 0.05 * delta)));
+			if (val === Infinity) val = 1e+100;
+			if (val === -Infinity) val = -1e+100;
+			this.value = val;
+			this._m.m[this._m.x][this._m.y] = synapseValue.value = val;
 		}
 	}
 	
