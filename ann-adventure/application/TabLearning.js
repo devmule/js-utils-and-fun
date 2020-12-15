@@ -106,15 +106,54 @@ class Settings extends MYDOM.DOMController {
 		this.absolute = true;
 		this.tab = tab;
 		
+		let offset = 16;
+		
 		this.btnLearning = new MYDOM.Button(Localizations.getText('LearnBegin'));
 		this.btnLearning.style.fontSize = MYDOM.PIXELS(MYDOM.STYLES.textSizeDefault);
 		this.btnLearning.absolute = true;
 		this.btnLearning.x = 52;
-		this.btnLearning.y = 16;
+		this.btnLearning.y = offset;
 		this.btnLearning.addEventListener('click', this.onLearningClick.bind(this));
 		this.add(this.btnLearning);
-		
 		this.addEventListener(EnumEvents.onNetworkChanged, () => this.isLearning(this.tab.app.networkController.isLearning));
+		
+		this.labelLearningRate = new MYDOM.DOMController();
+		this.labelLearningRate.cont.innerHTML = Localizations.getText('LearningRate');
+		this.labelLearningRate.style.textAlign = 'center';
+		this.labelLearningRate.style.color = MYDOM.HEXCOLOR(MYDOM.STYLES.colorWhite);
+		this.labelLearningRate.style.fontSize = MYDOM.PIXELS(MYDOM.STYLES.textSizeDefault);
+		this.labelLearningRate.absolute = true;
+		this.labelLearningRate.width = this.btnLearning.width;
+		this.labelLearningRate.height = this.btnLearning.height / 2;
+		this.labelLearningRate.x = 52;
+		this.labelLearningRate.y = this.btnLearning.y + this.btnLearning.height + offset;
+		this.add(this.labelLearningRate);
+		
+		this.inputLearningRate = new MYDOM.InputNumber(this.tab.app.networkController.settings.lr, 0.01, 20, 0.01);
+		this.inputLearningRate.absolute = true;
+		this.inputLearningRate.x = 52;
+		this.inputLearningRate.y = this.labelLearningRate.y + this.labelLearningRate.height;
+		this.inputLearningRate.addEventListener('change', () => this.tab.app.networkController.settings.lr = this.inputLearningRate.value);
+		this.add(this.inputLearningRate);
+		
+		this.labelEpochs = new MYDOM.DOMController();
+		this.labelEpochs.cont.innerHTML = Localizations.getText('EpochsCount');
+		this.labelEpochs.style.textAlign = 'center';
+		this.labelEpochs.style.color = MYDOM.HEXCOLOR(MYDOM.STYLES.colorWhite);
+		this.labelEpochs.style.fontSize = MYDOM.PIXELS(MYDOM.STYLES.textSizeDefault);
+		this.labelEpochs.absolute = true;
+		this.labelEpochs.width = this.btnLearning.width;
+		this.labelEpochs.height = this.btnLearning.height / 2;
+		this.labelEpochs.x = 52;
+		this.labelEpochs.y = this.inputLearningRate.y + this.inputLearningRate.height + offset;
+		this.add(this.labelEpochs);
+		
+		this.inputEpochs = new MYDOM.InputNumber(this.tab.app.networkController.settings.epochs, 1, 1000000, 100);
+		this.inputEpochs.absolute = true;
+		this.inputEpochs.x = 52;
+		this.inputEpochs.y = this.labelEpochs.y + this.labelEpochs.height;
+		this.inputEpochs.addEventListener('change', () => this.tab.app.networkController.settings.epochs = this.inputEpochs.value);
+		this.add(this.inputEpochs);
 	}
 	
 	isLearning(val) {
