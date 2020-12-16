@@ -10,6 +10,58 @@ function RED_TO_BLUE(val = 0) {
 	return MYDOM.RGBA(255 - val, 128 - Math.abs(val - 128), val);
 }
 
+// user values
+class NodeInput extends MYDOM.InputNumber {
+	constructor() {
+		super(0, 0, 1, 0.2);
+		this.height = 24;
+		this.width = 86;
+		this.absolute = true;
+	}
+	
+	set value(val) {
+		let prev = this.value;
+		this.input.cont.value = this.range(val.toFixed(1));
+		if (this.value !== prev) this.cont.dispatchEvent(new Event('change'));
+	}
+	
+	get value() {
+		return Number(this.input.cont.value);
+	}
+	
+	get width() {
+		return MYDOM.PIXELS_GET(this.style.width);
+	}
+	
+	set width(val) {
+		super.width = val;
+		this.input.x = this.height + 4;
+		this.input.width = val - this.input.x * 2;
+	}
+}
+
+class NodeOutput extends MYDOM.DOMController {
+	constructor() {
+		super();
+		this.absolute = true;
+		this.style.backgroundColor = MYDOM.HEXCOLOR(MYDOM.STYLES.colorLight);
+		this.style.boxShadow = `inset 0 0 0 ${MYDOM.PIXELS(1)} ${MYDOM.HEXCOLOR(MYDOM.STYLES.colorWhite)}`;
+		
+		this.style.color = MYDOM.HEXCOLOR(MYDOM.STYLES.colorWhite);
+		this.style.margin = this.style.padding = this.style.outline = this.style.border = '0';
+		this.style.fontSize = MYDOM.PIXELS(MYDOM.STYLES.textSizeDefault);
+		this.style.textAlign = 'center';
+		
+		this.height = 24;
+		this.width = 86;
+	}
+	
+	set value(val) {
+		this.cont.innerHTML = val.toFixed(5).toString();
+	}
+}
+
+// vis
 class SynapseValue extends MYDOM.DOMController {
 	constructor() {
 		super();
@@ -45,6 +97,7 @@ class SynapseValue extends MYDOM.DOMController {
 
 let synapseValue = new SynapseValue();
 
+// network
 class NetworkNode extends MYDOM.DOMController {
 	static size = 32;
 	static fontSize = 10;
@@ -236,6 +289,8 @@ class Visualization extends MYDOM.DOMController {
 		
 		this.cacheNodes = [];
 		this.cacheSynapses = [];
+		this.cacheInputs = [];
+		this.cacheOutputs = [];
 		
 		this.settings = {
 			vOffset: 64,
@@ -243,6 +298,19 @@ class Visualization extends MYDOM.DOMController {
 		};
 		
 		document.addEventListener(EnumEvents.onNetworkChanged, this.update.bind(this));
+	}
+	
+	getInput(i) {
+		if (!this.cacheInputs[i]) {
+			this.cacheInputs[i] = new NodeInput();
+			this.cacheInputs[i].addEventListener('change', this.updateNetworkValues.bind(this));
+		}
+		return this.cacheInputs[i];
+	}
+	
+	getOutput(i) {
+		if (!this.cacheOutputs[i]) this.cacheOutputs[i] = new NodeOutput();
+		return this.cacheOutputs[i];
 	}
 	
 	getNode(i) {
@@ -275,7 +343,14 @@ class Visualization extends MYDOM.DOMController {
 			nodes.inp.push(node);
 			node.value = 0;
 			this.add(node);
+			
+			let inp = this.getInput(i);
+			inp.x = node.x - node.width / 2 - inp.width - 4;
+			inp.y = node.y - inp.height / 2;
+			this.add(inp);
 		}
+		for (let i = network.inp_hid.width; i < this.cacheInputs.length; i++) this.cacheInputs[i].removeFromParent();
+		
 		for (let i = 0; i < network.inp_hid.height; i++) {
 			let node = this.getNode(nodeIndex++);
 			node._m.m = network.inp_hid;
@@ -297,7 +372,13 @@ class Visualization extends MYDOM.DOMController {
 			node.y = ((maxHeight - network.hid_out.height) / 2 + i + 1) * this.settings.vOffset;
 			nodes.out.push(node);
 			this.add(node);
+			
+			let out = this.getOutput(i);
+			out.x = node.x + node.width / 2 + 4;
+			out.y = node.y - out.height / 2;
+			this.add(out);
 		}
+		for (let i = network.hid_out.height; i < this.cacheOutputs.length; i++) this.cacheOutputs[i].removeFromParent();
 		for (let i = nodeIndex; i < this.cacheNodes.length; i++) this.cacheNodes[i].removeFromParent();
 		
 		// draw synapses
@@ -326,6 +407,19 @@ class Visualization extends MYDOM.DOMController {
 			this.add(synapse);
 		}
 		for (let i = synapseIndex; i < this.cacheSynapses.length; i++) this.cacheSynapses[i].removeFromParent();
+		
+		this.updateNetworkValues();
+	}
+	
+	updateNetworkValues() {
+		let /*Rosenblatt*/ network = this.tn.app.networkController.network;
+		
+		let inp = [];
+		for (let i = 0; i < network.inp_hid.width; i++) inp.push(this.getInput(i).value);
+		
+		let out = network.feedForward([inp])[0];
+		
+		for (let i = 0; i < out.length; i++) this.getOutput(i).value = out[i];
 	}
 }
 
