@@ -1,0 +1,18 @@
+{
+  "name": "js-utils-and-fun",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevMule/js-utils-and-fun.git"
+  },
+  "author": "devmule",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/DevMule/js-utils-and-fun/issues"
+  },
+  "homepage": "https://github.com/DevMule/js-utils-and-fun#readme"
+}
