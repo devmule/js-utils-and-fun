@@ -7,6 +7,17 @@ Matrix.prototype.averageRow = function (row) {
 	return val / this.width;
 };
 
+Matrix.prototype.randomize = function (min = 0, max = 1) {
+	this.forEachElement((e) => e + (Math.random() * (max - min) + min));
+	return this;
+};
+
+Matrix.prototype.absMean = function () {
+	let sum = 0;
+	this.forEach(el => el.forEach(val => sum += Math.abs(val)));
+	return sum / this.width / this.height;
+};
+
 export default class Rosenblatt {
 	constructor(inp, hid, out) {
 		this.inp_hid = new Matrix(inp, hid).randomize(-1, 1);
@@ -43,7 +54,7 @@ export default class Rosenblatt {
 			this.out_biases.forEachElement((v, x, y) => v + d_lo.averageRow(y) * lr);
 			this.hid_biases.forEachElement((v, x, y) => v + d_lh.averageRow(y) * lr);
 			
-			errValue += err_o.abs.mean;
+			errValue += err_o.absMean();
 		}
 		return errValue / pairs.length;
 	}

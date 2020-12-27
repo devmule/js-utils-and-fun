@@ -258,51 +258,10 @@ export default class Matrix extends Array {
 		return this;
 	}
 	
-	//
-	//
-	// some tasty methods
-	//
-	//
-	
 	/** Return pretty JSON string of this matrix array.
 	 * @return {String}
 	 * **/
 	toString() {
 		return JSON.stringify(this).split("],[").join("],\n [")
-	}
-	
-	/** Set ones on the main diagonal and zeros elsewhere. Return this matrix.
-	 * @return {Matrix}
-	 * **/
-	identity() {
-		this.forEachElement((e, x, y) => (x === y) ? 1 : 0);
-		return this;
-	}
-	
-	
-	/** Add random value from min to max to every element. Return this matrix.
-	 * @return {Matrix}
-	 * **/
-	randomize(min = 0, max = 1) {
-		this.forEachElement((e) => e + (Math.random() * (max - min) + min));
-		return this;
-	}
-	
-	/** Make each value absolute. Return new Matrix.
-	 * @return {Matrix}
-	 * **/
-	get abs() {
-		let a = this.clone();
-		a.forEachElement(Math.abs);
-		return a;
-	}
-	
-	/** Return mean value of each matrix values.
-	 * @return {number}
-	 * **/
-	get mean() {
-		let sum = 0;
-		this.forEach(el => el.forEach(val => sum += val));
-		return sum / this.width / this.height;
 	}
 }

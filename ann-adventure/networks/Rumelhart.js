@@ -7,6 +7,17 @@ Matrix.prototype.averageRow = function (row) {
 	return val / this.width;
 };
 
+Matrix.prototype.randomize = function (min = 0, max = 1) {
+	this.forEachElement((e) => e + (Math.random() * (max - min) + min));
+	return this;
+};
+
+Matrix.prototype.absMean = function () {
+	let sum = 0;
+	this.forEach(el => el.forEach(val => sum += Math.abs(val)));
+	return sum / this.width / this.height;
+};
+
 export default class Rumelhart {
 	constructor(l1, l2, ...layers) {
 		let ls = [l1, l2, ...layers];
@@ -59,7 +70,7 @@ export default class Rumelhart {
 				for (let k = Xi.length - 2; k > 0; k--)
 					Ei.unshift(Ei[0].dot(this._synapses[k].T));
 				
-				if (errCallback && !(i % errFrequency)) errValue += Ei[Ei.length - 1].abs.mean;
+				if (errCallback && !(i % errFrequency)) errValue += Ei[Ei.length - 1].absMean();
 				
 				for (let k = 0; k < this._synapses.length; k++) {
 					let grad = Ei[k].multiply(Si[k + 1].forEachElement(sigmoidDerivative));
