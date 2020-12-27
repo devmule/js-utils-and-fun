@@ -1,6 +1,12 @@
 import Matrix from "../../math/Matrix.js";
 import {sigmoid, sigmoidDerivative} from "./activationFunctions.js";
 
+Matrix.prototype.averageRow = function (row) {
+	let val = 0;
+	for (let i = 0; i < this.width; i++) val += this[i][row];
+	return val / this.width;
+};
+
 export default class Rosenblatt {
 	constructor(inp, hid, out) {
 		this.inp_hid = new Matrix(inp, hid).randomize(-1, 1);
@@ -13,7 +19,7 @@ export default class Rosenblatt {
 		let li = new Matrix(inp);
 		let lh = li.dot(this.inp_hid).add(this.hid_biases).forEachElement(sigmoid);
 		let lo = lh.dot(this.hid_out).add(this.out_biases).forEachElement(sigmoid);
-		return lo.toList();
+		return lo;
 	}
 	
 	learn(pairs, epochs = 100000, lr = 0.01) {

@@ -1,6 +1,12 @@
 import Matrix from "../../math/Matrix.js";
 import {sigmoid, sigmoidDerivative} from "./activationFunctions.js";
 
+Matrix.prototype.averageRow = function (row) {
+	let val = 0;
+	for (let i = 0; i < this.width; i++) val += this[i][row];
+	return val / this.width;
+};
+
 export default class Rumelhart {
 	constructor(l1, l2, ...layers) {
 		let ls = [l1, l2, ...layers];
@@ -31,7 +37,7 @@ export default class Rumelhart {
 		let li = new Matrix(inp);
 		for (let i = 0; i < this._synapses.length; i++)
 			li = li.dot(this._synapses[i]).add(this._biases[i]);
-		return li.toList();
+		return li;
 	}
 	
 	learn(pairs, epochs = 100000, lr = 0.01, errCallback = null, errFrequency = 1000) {
