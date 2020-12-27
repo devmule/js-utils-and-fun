@@ -49,7 +49,7 @@ export default class Matrix extends Array {
 	}
 	
 	/**
-	 * @param {(number|Array.<Array.<number>>)} w
+	 * @param {(number|Array.<Array.<number>>|Matrix)} w
 	 * @param {number} [h=0]
 	 * @return {Matrix}
 	 * **/
@@ -271,7 +271,7 @@ export default class Matrix extends Array {
 		return JSON.stringify(this).split("],[").join("],\n [")
 	}
 	
-	/** Set every element of this matrix 1 if x == y, 0 otherwise. Return this matrix.
+	/** Set ones on the main diagonal and zeros elsewhere. Return this matrix.
 	 * @return {Matrix}
 	 * **/
 	identity() {
@@ -288,35 +288,21 @@ export default class Matrix extends Array {
 		return this;
 	}
 	
+	/** Make each value absolute. Return new Matrix.
+	 * @return {Matrix}
+	 * **/
 	get abs() {
 		let a = this.clone();
 		a.forEachElement(Math.abs);
 		return a;
 	}
 	
+	/** Return mean value of each matrix values.
+	 * @return {number}
+	 * **/
 	get mean() {
 		let sum = 0;
 		this.forEach(el => el.forEach(val => sum += val));
 		return sum / this.width / this.height;
-	}
-	
-	toList() {
-		return [...this.clone()]
-	}
-	
-	averageCol(col) {
-		if (col < 0 || col >= this.width)
-			throw new RangeError(`Value must be in range [0, ${this.width - 1}].`);
-		let val = 0;
-		for (let i = 0; i < this.height; i++) val += this[col][i];
-		return val / this.height;
-	}
-	
-	averageRow(row) {
-		if (row < 0 || row >= this.height)
-			throw new RangeError(`Value must be in range [0, ${this.height - 1}].`);
-		let val = 0;
-		for (let i = 0; i < this.width; i++) val += this[i][row];
-		return val / this.width;
 	}
 }
