@@ -1,5 +1,5 @@
 /** Class representing a vector. */
-class Vector extends Array {
+export default class Vector extends Array {
 	
 	/** Add one vector values to another vector values. Can work with different sizes vectors. Return new Vector.
 	 * @param {Vector} v1
