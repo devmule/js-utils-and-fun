@@ -111,7 +111,7 @@ export default class Matrix extends Array {
 		return this;
 	}
 	
-	/** Returns new Matrix with same values, or clone values to given Matrix instance.
+	/** Returns new Matrix with same values.
 	 * @return {Matrix}
 	 * **/
 	clone() {
@@ -177,34 +177,55 @@ export default class Matrix extends Array {
 	}
 	
 	// lineal algebra
-	/** Return new inverted matrix. Matrix.dot(this, this.I) = matrix with ones on diagonals and zeros otherwise.
+	/** Return new inverted matrix. Matrix.dot(this, this.I) = identity  matrix.
 	 * @return {(Matrix|null)}
 	 * **/
 	get I() {
-		// fixme похоже здесь есть некотрые ошибки -> Matrix([[0.5]]).I -> [[0]] wtf ?????
-		// if det === 0, or matrix haven't det (det === null)
 		let d = this.det;
+		
+		// if det === 0, or matrix haven't det (det === null)
 		if (!d) return null;
 		
-		let m = new Matrix(this.length, this.length); // matrix is square
+		// Jordan method
+		let mtr = this.clone();
+		let idn = new Matrix(this.length, this.length).forEachElement((v, x, y) => x === y ? 1 : 0);
+		let el = 0;
 		
-		for (let x = 0; x < this.length; x++) {
-			for (let y = 0; y < this.length; y++) {
-				
-				// each cell value = (1/m.det) * (smaller_matrix.det) * (+1 or -1 depends on position)
-				
-				// get a smaller matrix
-				let a = new Matrix(this.length - 1, this.length - 1);
-				for (let ax = 0; ax < this.length - 1; ax++)  // for each X [from i+1, to i-1] (looped)
-					for (let ay = 0; ay < this.length - 1; ay++) // for each Y from [2 to end]
-						a[ax][ay] = this[ax + (ax >= x ? 1 : 0)][ay + (ay >= y ? 1 : 0)];
-				
-				// matrix is inverted, so coords of x and y are swapped
-				m[y][x] = 1 / d * a.det * ((x + y) % 2 ? -1 : 1);
+		for (let i = 0; i < this.length; i++) {
+			for (let j = i; j < this.length; j++) {
+				el = mtr[i][i];
+				if (el === 0) {
+					[idn[i], idn[j]] = [idn[j], idn[i]];
+					[mtr[i], mtr[j]] = [mtr[j], mtr[i]];
+				} else break;
+			}
+			if (el === 0) return null;
+			
+			for (let j = 0; j < this.length; j++) {
+				idn[i][j] /= el;
+				mtr[i][j] /= el;
+			}
+			
+			for (let j = i + 1; j < this.length; j++) {
+				el = mtr[j][i];
+				for (let k = 0; k < this.length; k++) {
+					idn[j][k] -= idn[i][k] * el;
+					mtr[j][k] -= mtr[i][k] * el;
+				}
 			}
 		}
 		
-		return m;
+		for (let i = this.length - 1; i > 0; i--) {
+			for (let j = i - 1; j >= 0; j--) {
+				el = mtr[j][i];
+				for (let k = 0; k < this.length; k++) {
+					idn[j][k] -= idn[i][k] * el;
+					mtr[j][k] -= mtr[i][k] * el;
+				}
+			}
+		}
+		
+		return idn;
 	}
 	
 	/** Return determinant of this matrix if exist, otherwise return null.
@@ -213,25 +234,18 @@ export default class Matrix extends Array {
 	get det() {
 		// only square matrix can have det
 		if (this.width !== this.height) return null;
-		
-		let d = 0;
-		
-		// we've got square matrix, so (1×1) matrix's det is its value, and width == height == length
 		if (this.length === 1) return this[0][0];
 		if (this.length === 2) return this[0][0] * this[1][1] - this[1][0] * this[0][1];
 		
-		for (let i = 0; i < this.length; i++) { // associative element = this[i][0]
-			if (this[i][0]) { // if associative element == 0, then result == 0, we dont need to calculate
-				
-				let m = new Matrix(this.length - 1, this.length - 1); // new matrix with less dimensions
-				
-				for (let x = 0; x < this.length - 1; x++)  // for each X [from i+1, to i-1] (looped)
-					for (let y = 0; y < this.length - 1; y++) // for each Y from [2 to end]
-						m[x][y] = this[x + (x >= i ? 1 : 0)][y + 1];
-				
-				// associative elem * ±det
-				d += this[i][0] * m.det * (i % 2 ? -1 : 1);
+		let d = 0, p = 0, m = 0;
+		for (let i = 0; i < this.length; i++) {
+			p = 1;
+			m = 1;
+			for (let j = 0; j < this.length; j++) {
+				p *= this[j][(j + i) % this.length];
+				m *= this[this.length - j - 1][(j + i) % this.length];
 			}
+			d += p - m;
 		}
 		return d;
 	}
