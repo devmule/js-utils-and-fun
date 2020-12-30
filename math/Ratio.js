@@ -105,7 +105,7 @@ export default class Ratio {
 	/** Return number value of this ratio.
 	 * @return {number}
 	 * **/
-	toValue() {
+	valueOf() {
 		return Number(this.n) / Number(this.d);
 	}
 }

@@ -9,6 +9,7 @@ function test(value, expected) {
 let a = new Ratio(11, 20);
 let b = new Ratio(1, 2);
 
+test(2 + b, 2.5);
 test(a.eq(b), false);
 test(a.lt(b), false);
 test(a.lte(b), false);
