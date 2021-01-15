@@ -66,6 +66,9 @@ export class NetworkController {
 		if (!this._isLearning) {
 			this._isLearning = true;
 			
+			// для нормального рендера частоту объявляю здесь
+			// в ином случае будут сильные тормоза во время обучения
+			
 			let epoch = 0;
 			let errFreq = 0;
 			
@@ -74,14 +77,15 @@ export class NetworkController {
 					epoch++;
 					errFreq += this.settings.errFrequency;
 					
-					let err = this.network.learn(this.trainingSamples, this.settings.epochs, this.settings.lr);
+					this.network.learn(this.trainingSamples, 1, this.settings.lr, (err) => {
+						if (errFreq > 1) {
+							errFreq = 0;
+							document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkErrorGet, {detail: {err: err}}));
+							document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged));
+						}
+						requestAnimationFrame(learn.bind(this));
+					}, 1);
 					
-					if (errFreq > 1) {
-						errFreq = 0;
-						document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkErrorGet, {detail: {err: err}}));
-						document.dispatchEvent(new CustomEvent(EnumEvents.onNetworkChanged));
-					}
-					requestAnimationFrame(learn.bind(this));
 					
 				} else this.learnStop();
 			};

@@ -129,11 +129,14 @@ class Settings extends MYDOM.DOMController {
 		this.labelLearningRate.y = this.btnLearning.y + this.btnLearning.height + offset;
 		this.add(this.labelLearningRate);
 		
-		this.inputLearningRate = new MYDOM.InputNumber(this.tab.app.networkController.settings.lr, 0.01, 20, 0.01);
+		this.inputLearningRate = new MYDOM.InputNumber(this.tab.app.networkController.settings.lr, 0.01, 20, 0.1);
 		this.inputLearningRate.absolute = true;
 		this.inputLearningRate.x = 52;
 		this.inputLearningRate.y = this.labelLearningRate.y + this.labelLearningRate.height;
-		this.inputLearningRate.addEventListener('change', () => this.tab.app.networkController.settings.lr = this.inputLearningRate.value);
+		this.inputLearningRate.addEventListener('change', () => {
+			this.inputLearningRate.input.cont.value = this.inputLearningRate.value.toFixed(1);
+			this.tab.app.networkController.settings.lr = this.inputLearningRate.value
+		});
 		this.add(this.inputLearningRate);
 		
 		this.labelEpochs = new MYDOM.DOMController();
